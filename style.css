@@ -590,6 +590,17 @@ h3 {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
+  .hero {
+    background-attachment: scroll;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .full-bleed-image {
+    background-attachment: scroll;
+    height: 300px;
+  }
+
   .nav {
     padding: 0 1.25rem;
   }
