@@ -25,6 +25,9 @@
 
   <!-- HERO -->
   <section class="hero">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="resourcesVideo/SUEX BASE1 heroVideo LR3.mp4" type="video/mp4" />
+    </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-eyebrow">Base One · Cala Gonone · Sardinia</p>
@@ -60,6 +63,61 @@
       </ul>
     </div>
   </section>
+
+  <!-- VIDEOS -->
+  <section class="section section-alt section-videos" id="videos">
+    <div class="container">
+      <div class="video-header">
+        <div>
+          <p class="section-label">See It in Action</p>
+          <h2>Watch the experience.</h2>
+          <p class="video-desc">Get a feel for what it's like — gliding along Sardinia's coast with DPV scooters, crystal-clear water, and a small guided group.</p>
+        </div>
+        <div class="video-nav">
+          <button class="video-arrow video-prev" onclick="scrollVideos(-1)" aria-label="Previous">←</button>
+          <button class="video-arrow video-next" onclick="scrollVideos(1)" aria-label="Next">→</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-slider-wrap">
+      <div class="video-slider" id="videoSlider">
+        <div class="video-card">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/CFVkTyvmtKs" title="DPV Snorkel Experience" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/Uoox03Pa-1g" title="DPV Snorkel Sardinia" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/KkKVigjYJK8" title="SUEX DPV Adventure" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/TCwZpOPU9xE" title="SUEX Underwater" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube.com/embed/6cgTFWLwHGA" title="DPV Coastal Ride" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function scrollVideos(dir) {
+      const slider = document.getElementById('videoSlider');
+      const card = slider.querySelector('.video-card');
+      const scrollAmount = card.offsetWidth + 16;
+      slider.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+    }
+  </script>
 
   <!-- DIVIDER IMAGE -->
   <div class="full-bleed-image img-sea-1"></div>
@@ -223,7 +281,7 @@
         <img src="resourcesImages/logo_base1.png" alt="Base One" />
       </a>
       <p class="footer-text">Operated from <a href="https://www.baseone.it">Base One</a> in Cala Gonone in partnership with SUEX.<br>Coastal routes selected for safety and conditions across Sardinia.</p>
-      <p class="footer-copy">© 2025 Base One · <a href="https://www.baseone.it">www.baseone.it</a></p>
+      <p class="footer-copy">© 2026 Base One · <a href="https://www.baseone.it">www.baseone.it</a></p>
     </div>
   </footer>
 
