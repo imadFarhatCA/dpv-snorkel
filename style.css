@@ -702,7 +702,7 @@ h3 {
 
 .video-feature-inner {
   position: relative;
-  min-height: 560px;
+  min-height: 680px;
   display: flex;
   align-items: center;
 }
@@ -748,10 +748,25 @@ h3 {
 
 @media (max-width: 768px) {
   .video-feature-inner {
-    min-height: 420px;
+    flex-direction: column;
+    min-height: unset;
+    align-items: stretch;
+  }
+  .video-feature-player {
+    position: static;
+    width: 100%;
+    height: 280px;
+    order: 2;
+  }
+  .video-feature-overlay {
+    display: none;
   }
   .video-feature-content {
-    padding: 3rem 1.25rem;
+    position: static;
+    order: 1;
+    background: var(--color-dark-alt);
+    padding: 2.5rem 1.25rem;
+    max-width: 100%;
   }
 }
 
