@@ -111,23 +111,46 @@
   </section>
 
   <!-- PHOTO GALLERY -->
-  <section class="section section-alt" id="gallery">
+  <section class="section section-alt section-videos" id="gallery">
     <div class="container">
-      <p class="section-label">In the Water</p>
-      <h2>See what it looks like.</h2>
+      <div class="video-header">
+        <div>
+          <p class="section-label">See It in Action</p>
+          <h2>The experience in photos.</h2>
+          <p class="video-desc">Get a feel for what it's like — gliding along Sardinia's coast with scooters, crystal-clear water, and a small supervised group.</p>
+        </div>
+        <div class="video-nav">
+          <button class="video-arrow video-prev" onclick="scrollVideos(-1)" aria-label="Previous">←</button>
+          <button class="video-arrow video-next" onclick="scrollVideos(1)" aria-label="Next">→</button>
+        </div>
+      </div>
     </div>
-    <div class="photo-gallery">
-      <div class="gallery-item gallery-wide">
-        <img src="resourcesImages/web/DJI_0386-gallery.jpg" alt="Aerial view of the group snorkelling with DPV scooters" loading="lazy" />
-      </div>
-      <div class="gallery-item">
-        <img src="resourcesImages/web/_V6A5839-gallery.jpg" alt="Participant gliding underwater with a DPV scooter" loading="lazy" />
-      </div>
-      <div class="gallery-item">
-        <img src="resourcesImages/web/_V6A5950-gallery.jpg" alt="Snorkeller at the surface with a DPV scooter" loading="lazy" />
-      </div>
-      <div class="gallery-item gallery-wide">
-        <img src="resourcesImages/web/_V6A5925-gallery.jpg" alt="Two participants side by side with DPV scooters" loading="lazy" />
+    <div class="video-slider-wrap">
+      <div class="video-slider" id="videoSlider">
+        <div class="video-card">
+          <img src="resourcesImages/web/DJI_0386-gallery.jpg" alt="Aerial view of snorkellers with DPV scooters" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/_V6A5925-gallery.jpg" alt="Two participants side by side with DPV scooters" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/_V6A5839-gallery.jpg" alt="Participant gliding underwater with a DPV scooter" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/DJI_0393-gallery.jpg" alt="Aerial view of four snorkellers from above" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/_V6A5950-gallery.jpg" alt="Snorkeller at the surface with a DPV scooter" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/_V6A5504-gallery.jpg" alt="Group underwater with DPV scooters" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/DJI_0458-gallery.jpg" alt="Aerial view of group in shallow crystal water" loading="lazy" />
+        </div>
+        <div class="video-card">
+          <img src="resourcesImages/web/_V6A5926-gallery.jpg" alt="Couple gliding side by side with DPV scooters" loading="lazy" />
+        </div>
       </div>
     </div>
   </section>
