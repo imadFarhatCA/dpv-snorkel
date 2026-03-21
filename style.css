@@ -698,7 +698,7 @@ h3 {
   position: relative;
   min-height: 680px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .video-feature-player {
@@ -726,7 +726,7 @@ h3 {
   position: relative;
   z-index: 2;
   max-width: 560px;
-  padding: 5rem 3rem;
+  padding: 3rem 3rem 4rem;
   color: var(--color-white);
 }
 
@@ -971,7 +971,7 @@ h3 {
 .page-hero {
   background: var(--color-dark-alt);
   color: white;
-  padding: 72px 60px 48px;
+  padding: 160px 60px 48px;
 }
 .page-hero .eyebrow {
   font-size: 11px;
@@ -1398,7 +1398,7 @@ h3 {
 }
 
 @media (max-width: 768px) {
-  .page-hero { padding: 40px 24px 36px; }
+  .page-hero { padding: 60px 24px 36px; }
   .page-hero h1 { font-size: 26px; }
   .policy-content { padding: 36px 24px 60px; }
   .waiver-wrap { padding: 36px 24px 60px; }
