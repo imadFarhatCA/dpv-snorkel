@@ -6,11 +6,11 @@
 </script>
 
 <nav class="nav">
-  <a href="https://dpv-snorkel.pages.dev" class="nav-logo" title="DPV Snorkel Experience">
+  <a href="https://base1dpv.pages.dev" class="nav-logo" title="DPV Snorkel Experience">
     <img src="/logo_base1.png" alt="Base One" />
   </a>
   <div class="nav-right">
-    <a href="https://dpv-snorkel.pages.dev" class="nav-back">← Back to DPV</a>
+    <a href="https://base1dpv.pages.dev" class="nav-back">← Back to DPV</a>
     <button class="btn-lang" onclick={toggleLang}>
       {lang.value === 'en' ? '🇮🇹 Italiano' : '🇬🇧 English'}
     </button>

@@ -140,7 +140,7 @@
 
     <!-- Actions -->
     <div class="actions">
-      <a href="https://dpv.baseone.it" class="btn-primary">← {t('Back to DPV','Torna al DPV')}</a>
+      <a href="https://base1dpv.pages.dev" class="btn-primary">← {t('Back to DPV','Torna al DPV')}</a>
       <a href="https://wa.me/message/BASEONE" target="_blank" rel="noopener" class="btn-ghost">
         {t('Questions? WhatsApp us','Domande? Scrivici su WhatsApp')}
       </a>
