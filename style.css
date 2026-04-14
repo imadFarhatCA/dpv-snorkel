@@ -15,14 +15,21 @@
   --color-surface:   #f5f5f5;
   --color-dark:      #1a1a1a;
   --color-dark-alt:  #101820;
+  --color-footer:    #0d2a4a;
   --color-charcoal:  #32373c;
   --color-ocean:     #0693e3;
   --color-ocean-dk:  #0575c4;
   --color-teal:      #00bcd4;
   --color-text:      #2c2c2c;
+  --color-text-secondary: #555;
+  --color-text-tertiary:  #444;
   --color-muted:     #6b7280;
+  --color-muted-lt:  #bbb;
   --color-border:    #e5e7eb;
   --color-white:     #ffffff;
+  --color-bg-subtle: #fafafa;
+  --color-error:     #c0392b;
+  --color-success:   #16a34a;
 
   --font:            'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-weight-normal: 400;
@@ -32,6 +39,8 @@
 
   --radius:     4px;
   --radius-lg:  8px;
+  --radius-xl:  12px;
+  --radius-pill: 50px;
 
   --max-w:       1200px;
   --max-w-narrow: 800px;
@@ -857,7 +866,7 @@ h3 {
 
 /* --- Footer --- */
 .footer {
-  background: #0d2a4a;
+  background: var(--color-footer);
   color: rgba(255,255,255,0.7);
   padding: 3.5rem 2rem;
 }
@@ -1011,7 +1020,7 @@ h3 {
   font-weight: 600;
   letter-spacing: 0.3px;
   border: 1.5px solid var(--color-border);
-  border-radius: 50px;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-muted);
   cursor: pointer;
@@ -1083,13 +1092,13 @@ h3 {
   padding: 22px 26px;
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   text-decoration: none;
   color: inherit;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .policy-card:hover {
-  border-color: #bbb;
+  border-color: var(--color-muted-lt);
   box-shadow: 0 4px 20px rgba(0,0,0,0.07);
   transform: translateY(-2px);
 }
@@ -1130,12 +1139,12 @@ h3 {
 .waiver-intro {
   font-size: 15px;
   line-height: 1.75;
-  color: #444;
+  color: var(--color-text-tertiary);
   margin-bottom: 28px;
 }
 .agreement-box {
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   margin-bottom: 40px;
   overflow: hidden;
 }
@@ -1144,7 +1153,7 @@ h3 {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  background: #f5f5f5;
+  background: var(--color-surface);
   list-style: none;
   display: flex;
   align-items: center;
@@ -1163,7 +1172,7 @@ h3 {
   overflow-y: auto;
   font-size: 13px;
   line-height: 1.7;
-  color: #555;
+  color: var(--color-text-secondary);
   border-top: 1px solid var(--color-border);
 }
 .agreement-text h3 {
@@ -1231,7 +1240,7 @@ h3 {
   font-family: var(--font);
   font-size: 14px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   outline: none;
   transition: border-color 0.15s;
   background: white;
@@ -1241,16 +1250,16 @@ h3 {
 }
 
 .conditions-list {
-  background: #fafafa;
+  background: var(--color-bg-subtle);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   padding: 16px 20px;
   margin-bottom: 14px;
 }
 .conditions-list li {
   font-size: 13px;
   line-height: 1.55;
-  color: #555;
+  color: var(--color-text-secondary);
   padding: 4px 0;
   padding-left: 14px;
   position: relative;
@@ -1271,7 +1280,7 @@ h3 {
 .ack-item {
   font-size: 13.5px;
   line-height: 1.6;
-  color: #444;
+  color: var(--color-text-tertiary);
 }
 
 .confirm-check {
@@ -1279,9 +1288,9 @@ h3 {
   align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
-  background: #f5f5f5;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   font-size: 13.5px;
   font-weight: 500;
@@ -1317,16 +1326,16 @@ h3 {
 .guardian-fields {
   margin-top: 20px;
   padding: 20px;
-  background: #fafafa;
+  background: var(--color-bg-subtle);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 /* Signature canvas */
 .sig-wrap {
   border: 1.5px dashed var(--color-border);
-  border-radius: 10px;
-  background: #fafafa;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
   position: relative;
   overflow: hidden;
 }
@@ -1377,7 +1386,7 @@ h3 {
   font-weight: 700;
   letter-spacing: 0.5px;
   border: none;
-  border-radius: 50px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
 }
@@ -1392,7 +1401,7 @@ h3 {
 }
 .error-msg {
   font-size: 13px;
-  color: #c0392b;
+  color: var(--color-error);
   display: none;
   margin-top: 8px;
 }

@@ -97,8 +97,10 @@ function captureCanvas(canvas) {
 }
 
 // ===== Form validation =====
+let _waiverSubmitting = false;
 document.getElementById('waiverForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  if (_waiverSubmitting) return;
   const errorEl = document.getElementById('errorMsg');
   errorEl.style.display = 'none';
 
@@ -146,15 +148,28 @@ document.getElementById('waiverForm').addEventListener('submit', function(e) {
     return;
   }
 
-  buildPDF({
-    lang: window.currentLang,
-    name, dob, nationality, emergency,
-    isMinor, guardianName, guardianRelation,
-    signatureImg: captureCanvas(sigPad.canvas),
-    guardianSignatureImg: isMinor ? captureCanvas(guardianSigPad.canvas) : null,
-    date: new Date().toLocaleDateString(window.currentLang === 'it' ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
-    timestamp: new Date().toLocaleString(window.currentLang === 'it' ? 'it-IT' : 'en-GB')
-  });
+  _waiverSubmitting = true;
+  const submitBtn = document.querySelector('.btn-generate');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = submitBtn.textContent.replace(/generate/i, 'Generating…'); }
+
+  try {
+    buildPDF({
+      lang: window.currentLang,
+      name, dob, nationality, emergency,
+      isMinor, guardianName, guardianRelation,
+      signatureImg: captureCanvas(sigPad.canvas),
+      guardianSignatureImg: isMinor ? captureCanvas(guardianSigPad.canvas) : null,
+      date: new Date().toLocaleDateString(window.currentLang === 'it' ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
+      timestamp: new Date().toLocaleString(window.currentLang === 'it' ? 'it-IT' : 'en-GB')
+    });
+  } catch (err) {
+    errorEl.textContent = window.currentLang === 'it'
+      ? 'Errore nella generazione del PDF. Riprova.'
+      : 'Could not generate the PDF. Please try again.';
+    errorEl.style.display = 'block';
+    _waiverSubmitting = false;
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.textContent.replace(/generating…/i, 'Generate'); }
+  }
 });
 
 // ===== PDF Generation =====
