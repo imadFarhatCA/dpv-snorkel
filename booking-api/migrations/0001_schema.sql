@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_bookings_email  ON bookings(email);
 CREATE INDEX IF NOT EXISTS idx_bookings_token  ON bookings(ical_token);
 CREATE INDEX IF NOT EXISTS idx_bookings_stripe ON bookings(stripe_session_id);
 
--- Seed upcoming Tuesdays and Thursdays for local dev testing
+-- Seed upcoming Tuesdays and Thursdays for ~3 months of dev testing
 -- weekday 2 = Tuesday, weekday 4 = Thursday
 INSERT OR IGNORE INTO trip_dates (date) VALUES
   (date('now', 'weekday 2')),
@@ -42,4 +42,22 @@ INSERT OR IGNORE INTO trip_dates (date) VALUES
   (date('now', '+14 days', 'weekday 2')),
   (date('now', '+14 days', 'weekday 4')),
   (date('now', '+21 days', 'weekday 2')),
-  (date('now', '+21 days', 'weekday 4'));
+  (date('now', '+21 days', 'weekday 4')),
+  (date('now', '+28 days', 'weekday 2')),
+  (date('now', '+28 days', 'weekday 4')),
+  (date('now', '+35 days', 'weekday 2')),
+  (date('now', '+35 days', 'weekday 4')),
+  (date('now', '+42 days', 'weekday 2')),
+  (date('now', '+42 days', 'weekday 4')),
+  (date('now', '+49 days', 'weekday 2')),
+  (date('now', '+49 days', 'weekday 4')),
+  (date('now', '+56 days', 'weekday 2')),
+  (date('now', '+56 days', 'weekday 4')),
+  (date('now', '+63 days', 'weekday 2')),
+  (date('now', '+63 days', 'weekday 4')),
+  (date('now', '+70 days', 'weekday 2')),
+  (date('now', '+70 days', 'weekday 4')),
+  (date('now', '+77 days', 'weekday 2')),
+  (date('now', '+77 days', 'weekday 4')),
+  (date('now', '+84 days', 'weekday 2')),
+  (date('now', '+84 days', 'weekday 4'));

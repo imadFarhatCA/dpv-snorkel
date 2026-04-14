@@ -9,7 +9,7 @@
 
   let balance   = $derived(booking ? (booking.total_amount - booking.deposit_amount).toFixed(2) : '0');
   let icsUrl    = $derived(booking ? `${API}/calendar/${booking.ical_token}.ics` : '');
-  let gcUrl     = $derived(() => {
+  let gcUrl     = $derived.by(() => {
     if (!booking) return '';
     const nextDay = (() => {
       const d = new Date(booking.date + 'T12:00:00Z');

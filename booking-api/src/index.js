@@ -13,7 +13,9 @@ const DEPOSIT_PCT      = 0.5;
 // ── CORS ────────────────────────────────────────────────────────────────────
 
 const ALLOWED_ORIGINS = [
+  'http://localhost:5180',
   'http://localhost:8080',
+  'http://127.0.0.1:5180',
   'http://127.0.0.1:8080',
   'https://dpv.baseone.it',
   'https://www.baseone.it',
@@ -73,19 +75,54 @@ async function handleDates(env, origin) {
   const today  = new Date().toISOString().slice(0, 10);
   const cutoff = new Date(Date.now() + 180 * 86400_000).toISOString().slice(0, 10);
 
-  const { results } = await env.DB.prepare(`
-    SELECT
-      t.date,
-      COALESCE(SUM(CASE WHEN b.status = 'confirmed' THEN b.guests ELSE 0 END), 0) AS booked
-    FROM trip_dates t
-    LEFT JOIN bookings b ON b.date = t.date
-    WHERE t.active = 1 AND t.date >= ? AND t.date <= ?
-    GROUP BY t.date
-    ORDER BY t.date ASC
+  // 1. Load active schedule rules that overlap our window
+  const { results: rules } = await env.DB.prepare(`
+    SELECT * FROM schedule_rules
+    WHERE active = 1 AND end_date >= ? AND start_date <= ?
   `).bind(today, cutoff).all();
 
-  const dates = results
-    .map(r => ({ date: r.date, spots_left: MAX_GUESTS - r.booked }))
+  // 2. Expand rules into individual dates (all UTC to avoid timezone shift)
+  const dateMap = {}; // { 'YYYY-MM-DD': max_guests }
+  for (const rule of rules) {
+    const weekdays = rule.weekdays.split(',').map(Number);
+    const start = new Date(Math.max(new Date(rule.start_date + 'T00:00:00Z'), new Date(today + 'T00:00:00Z')));
+    const end   = new Date(Math.min(new Date(rule.end_date + 'T00:00:00Z'), new Date(cutoff + 'T00:00:00Z')));
+    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      if (weekdays.includes(d.getUTCDay())) {
+        const key = d.toISOString().slice(0, 10);
+        dateMap[key] = rule.max_guests;
+      }
+    }
+  }
+
+  // 3. Apply overrides (open extra dates or cancel specific ones)
+  const { results: overrides } = await env.DB.prepare(`
+    SELECT * FROM date_overrides WHERE date >= ? AND date <= ?
+  `).bind(today, cutoff).all();
+
+  for (const ov of overrides) {
+    if (ov.action === 'closed') {
+      delete dateMap[ov.date];
+    } else if (ov.action === 'open') {
+      dateMap[ov.date] = ov.max_guests ?? MAX_GUESTS;
+    }
+  }
+
+  // 4. Subtract confirmed bookings
+  const openDates = Object.keys(dateMap).sort();
+  if (!openDates.length) return json({ dates: [] }, 200, origin);
+
+  const placeholders = openDates.map(() => '?').join(',');
+  const { results: booked } = await env.DB.prepare(`
+    SELECT date, COALESCE(SUM(guests), 0) AS booked
+    FROM bookings WHERE status = 'confirmed' AND date IN (${placeholders})
+    GROUP BY date
+  `).bind(...openDates).all();
+
+  const bookedMap = Object.fromEntries(booked.map(r => [r.date, r.booked]));
+
+  const dates = openDates
+    .map(d => ({ date: d, spots_left: dateMap[d] - (bookedMap[d] ?? 0) }))
     .filter(r => r.spots_left > 0);
 
   return json({ dates }, 200, origin);
@@ -110,20 +147,17 @@ async function handleBook(request, env, url, origin) {
   if (name.length > 120 || notes.length > 600)
     return json({ error: 'Input too long' }, 400, origin);
 
-  // Check availability
-  const { results: check } = await env.DB.prepare(`
-    SELECT t.date,
-      COALESCE(SUM(CASE WHEN b.status = 'confirmed' THEN b.guests ELSE 0 END), 0) AS booked
-    FROM trip_dates t
-    LEFT JOIN bookings b ON b.date = t.date
-    WHERE t.active = 1 AND t.date = ?
-    GROUP BY t.date
-  `).bind(date).all();
-
-  if (!check.length)
+  // Check availability — is this date open via rules or overrides?
+  const maxGuests = await getDateMaxGuests(env, date);
+  if (maxGuests === 0)
     return json({ error: 'Date not available' }, 400, origin);
 
-  const spotsLeft = MAX_GUESTS - check[0].booked;
+  const { results: bookCheck } = await env.DB.prepare(`
+    SELECT COALESCE(SUM(guests), 0) AS booked
+    FROM bookings WHERE date = ? AND status = 'confirmed'
+  `).bind(date).all();
+
+  const spotsLeft = maxGuests - (bookCheck[0]?.booked ?? 0);
   if (guests > spotsLeft)
     return json({ error: `Only ${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left for this date` }, 400, origin);
 
@@ -250,6 +284,35 @@ async function handleBookingIcs(token, env) {
       'Content-Disposition': `attachment; filename="dpv-trip-${booking.date}.ics"`,
     },
   });
+}
+
+// ── Date helper ──────────────────────────────────────────────────────────────
+
+async function getDateMaxGuests(env, date) {
+  // Check override first (takes priority)
+  const { results: ovr } = await env.DB.prepare(
+    `SELECT * FROM date_overrides WHERE date = ?`
+  ).bind(date).all();
+
+  if (ovr.length) {
+    if (ovr[0].action === 'closed') return 0;
+    if (ovr[0].action === 'open') return ovr[0].max_guests ?? MAX_GUESTS;
+  }
+
+  // Check schedule rules
+  const dow = new Date(date + 'T12:00:00Z').getUTCDay();
+  const { results: rules } = await env.DB.prepare(`
+    SELECT * FROM schedule_rules
+    WHERE active = 1 AND start_date <= ? AND end_date >= ?
+  `).bind(date, date).all();
+
+  for (const rule of rules) {
+    if (rule.weekdays.split(',').map(Number).includes(dow)) {
+      return rule.max_guests;
+    }
+  }
+
+  return 0; // not available
 }
 
 // ── Stripe helpers ────────────────────────────────────────────────────────────

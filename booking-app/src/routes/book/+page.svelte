@@ -4,18 +4,23 @@
   import { API, fetchWithTimeout } from '$lib/api.js';
   import fp from 'flatpickr';
   import 'flatpickr/dist/flatpickr.min.css';
-  const flatpickr = fp.default ?? fp; // CJS interop
+  const flatpickr = fp.default ?? fp;
+
+  // ── Helpers ──────────────────────────────────────
+  function toKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
 
   // ── State ────────────────────────────────────────
-  let step          = $state(1);          // 1 | 2
-  let availableDates= $state({});         // { 'YYYY-MM-DD': spots_left }
+  let step          = $state(1);
+  let _dates        = {};             // plain object for flatpickr (no proxy)
+  let availableDates= $state({});     // reactive copy for UI
   let selectedDate  = $state(null);
   let guestCount    = $state(1);
   let alertMsg      = $state('');
-  let alertType     = $state('');         // 'error' | 'info'
+  let alertType     = $state('');
   let submitting    = $state(false);
-  let fpInstance  = null;          // plain var — not reactive
-  let calendarEl  = $state(null); // reactive for bind:this
+  let fpInstance    = null;
 
   // ── Form fields ──────────────────────────────────
   let name  = $state('');
@@ -23,12 +28,12 @@
   let phone = $state('');
 
   // ── Derived ──────────────────────────────────────
-  let spotsLeft   = $derived(selectedDate ? (availableDates[selectedDate] ?? 0) : 0);
-  let total       = $derived(guestCount * 90);
-  let deposit     = $derived(total * 0.5);
-  let balance     = $derived(total * 0.5);
+  let spotsLeft = $derived(selectedDate ? (availableDates[selectedDate] ?? 0) : 0);
+  let total     = $derived(guestCount * 90);
+  let deposit   = $derived(total * 0.5);
+  let balance   = $derived(total * 0.5);
 
-  let chipDate = $derived(() => {
+  let chipDate = $derived.by(() => {
     if (!selectedDate) return '—';
     const d    = new Date(selectedDate + 'T12:00:00Z');
     const days = lang.value === 'en'
@@ -46,62 +51,39 @@
   );
 
   // ── Flatpickr ────────────────────────────────────
-  function markAvailable(instance) {
-    instance.calendarContainer.querySelectorAll('.flatpickr-day.available')
+  function markAvailable(inst) {
+    inst.calendarContainer.querySelectorAll('.flatpickr-day.available')
       .forEach(el => el.classList.remove('available'));
-    instance.calendarContainer
-      .querySelectorAll('.flatpickr-day:not(.prevMonthDay):not(.nextMonthDay)')
-      .forEach(el => {
-        if (!el.dateObj) return;
-        const dow = el.dateObj.getDay();
-        if (dow === 2 || dow === 4) el.classList.add('available'); // Tue & Thu
-      });
+    inst.calendarContainer
+      .querySelectorAll('.flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay)')
+      .forEach(el => el.classList.add('available'));
   }
 
-  // Reactive init: runs whenever calendarEl or availableDates changes
-  $effect(() => {
-    const el = calendarEl;          // read reactive ref so Svelte tracks it
-    const dates = availableDates;   // read reactive ref so Svelte tracks it
-    if (!el) {
-      if (fpInstance) { fpInstance.destroy(); fpInstance = null; }
-      return;
-    }
-
-    if (fpInstance) { fpInstance.destroy(); fpInstance = null; }
+  function initCalendar() {
+    const el = document.getElementById('fp-calendar');
+    if (!el || fpInstance) return;
     fpInstance = flatpickr(el, {
       inline:     true,
       minDate:    'today',
-      disable: [date => {
-        const dow = date.getDay();
-        if (dow !== 2 && dow !== 4) return true; // Tue=2, Thu=4
-        return !dates[date.toISOString().slice(0, 10)];
-      }],
       dateFormat: 'Y-m-d',
       locale:     { firstDayOfWeek: 1 },
-      onReady(_, __, inst)       { setTimeout(() => markAvailable(inst), 80); },
+      disable: [date => !_dates[toKey(date)]],
+      onReady(_, __, inst)       { setTimeout(() => markAvailable(inst), 50); },
       onMonthChange(_, __, inst) { setTimeout(() => markAvailable(inst), 50); },
       onChange(selected) {
         if (!selected.length) return;
-        selectedDate = selected[0].toISOString().slice(0, 10);
+        selectedDate = toKey(selected[0]);
         guestCount   = 1;
         setTimeout(() => { step = 2; }, 320);
       },
     });
-  });
-
-  async function loadDates() {
-    try {
-      const res  = await fetch(`${API}/api/dates`);
-      const data = await res.json();
-      availableDates = Object.fromEntries(data.dates.map(d => [d.date, d.spots_left]));
-    } catch {
-      showAlert(t('Could not load available dates. Please refresh.', 'Impossibile caricare le date. Ricarica la pagina.'), 'error');
-    }
   }
 
   // ── Step nav ─────────────────────────────────────
   function goToStep1() {
-    step = 1; // $effect re-runs when calendarEl becomes available again
+    step = 1;
+    // Re-apply highlights after the step becomes visible
+    setTimeout(() => fpInstance && markAvailable(fpInstance), 50);
   }
 
   // ── Guest counter ─────────────────────────────────
@@ -143,13 +125,29 @@
 
   function showAlert(msg, type) { alertMsg = msg; alertType = type; }
 
-  // ── Cancelled redirect ────────────────────────────
-  onMount(() => {
+  // ── Init ──────────────────────────────────────────
+  onMount(async () => {
     if (new URLSearchParams(location.search).get('cancelled') === '1') {
       step = 2;
       showAlert(t('Payment cancelled. No charge was made.', 'Pagamento annullato. Nessun addebito.'), 'info');
     }
-    loadDates();
+
+    // Load dates, then init calendar
+    try {
+      const res  = await fetch(`${API}/api/dates`);
+      const data = await res.json();
+      _dates = Object.fromEntries(data.dates.map(d => [d.date, d.spots_left]));
+      availableDates = _dates;
+      console.log('[DPV] Loaded dates:', Object.keys(_dates).length, 'first:', Object.keys(_dates)[0]);
+    } catch (err) {
+      console.error('[DPV] Failed to load dates:', err);
+      showAlert(t('Could not load available dates. Please refresh.', 'Impossibile caricare le date. Ricarica la pagina.'), 'error');
+    }
+
+    const el = document.getElementById('fp-calendar');
+    console.log('[DPV] Calendar element:', el ? 'found' : 'NOT FOUND');
+    console.log('[DPV] _dates sample:', JSON.stringify(_dates).slice(0, 100));
+    initCalendar();
   });
 </script>
 
@@ -186,17 +184,17 @@
 
   <div class="book-body">
 
-    <!-- ── STEP 1: Pick a date ── -->
-    {#if step === 1}
+    <!-- ── STEP 1: Pick a date (always in DOM, hidden via CSS) ── -->
+    <div class="step-panel" class:hidden={step !== 1}>
       <div class="book-card">
         <div class="card-head">
           <span class="card-head-title">{t('Select a Date', 'Scegli una Data')}</span>
           <span class="card-head-meta">€90 / {t('person', 'persona')} · max 8</span>
         </div>
         <div class="card-body" style="padding-bottom:0">
-          <div bind:this={calendarEl}></div>
+          <div id="fp-calendar"></div>
         </div>
-        {#if selectedDate}
+        {#if selectedDate && step === 1}
           <div class="spots-row">
             <div class="spots-badge" class:low={spotsLeft <= 2}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -232,9 +230,10 @@
           </p>
         </div>
       </div>
+    </div>
 
     <!-- ── STEP 2: Details + payment ── -->
-    {:else if step === 2}
+    <div class="step-panel" class:hidden={step !== 2}>
 
       <!-- Date chip -->
       <div class="date-chip">
@@ -321,7 +320,7 @@
           </form>
         </div>
       </div>
-    {/if}
+    </div>
 
   </div>
 </div>
@@ -330,6 +329,9 @@
   /* ── Page ── */
   .book-page  { min-height: 100vh; background: var(--book-bg); padding-top: var(--nav-h); }
   .book-body  { max-width: 440px; margin: 0 auto; padding: 32px 16px 80px; }
+
+  /* ── Step panels ── */
+  .step-panel.hidden { display: none; }
 
   /* ── Step header ── */
   .step-header {
