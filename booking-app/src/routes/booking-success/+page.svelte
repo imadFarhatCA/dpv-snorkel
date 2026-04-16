@@ -114,7 +114,7 @@
 
     <!-- Balance reminder -->
     <div class="note-box">
-      💳 {t(`Please bring <strong>€${balance}</strong> cash or card on the day. The balance is due before boarding.`,
+      💳 {@html t(`Please bring <strong>€${balance}</strong> cash or card on the day. The balance is due before boarding.`,
             `Porta <strong>€${balance}</strong> in contanti o carta il giorno dell'attività.`)}
     </div>
 
