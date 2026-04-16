@@ -6,7 +6,7 @@ compatibility_date = "2024-09-23"
 PRICE_PER_PERSON = "90"
 MAX_GUESTS       = "8"
 DEPOSIT_PCT      = "0.5"
-SITE_URL         = "http://localhost:8080"  # update to production URL on deploy
+SITE_URL         = "http://localhost:5180"  # update to production booking app URL on deploy
 
 [[d1_databases]]
 binding       = "DB"

@@ -358,8 +358,8 @@ async function createStripeSession({ env, bookingId, date, name, email, guests, 
     'metadata[booking_id]':                               bookingId,
     'metadata[date]':                                     date,
     'metadata[guests]':                                   guests,
-    success_url: `${siteUrl}/booking-success.html?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url:  `${siteUrl}/book.html?cancelled=1`,
+    success_url: `${siteUrl}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url:  `${siteUrl}/book?cancelled=1`,
     expires_at:  Math.floor(Date.now() / 1000) + 1800,  // 30 min window
   });
 }
