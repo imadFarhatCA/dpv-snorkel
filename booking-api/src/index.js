@@ -205,7 +205,7 @@ async function handleConfirm(request, env, origin) {
     return json({ error: 'Payment not completed' }, 402, origin);
 
   // Confirm booking (idempotent — safe to call multiple times)
-  await env.DB.prepare(`
+  const { meta: updateMeta } = await env.DB.prepare(`
     UPDATE bookings
     SET status = 'confirmed', stripe_payment_intent = ?
     WHERE stripe_session_id = ? AND status = 'pending'
@@ -215,7 +215,15 @@ async function handleConfirm(request, env, origin) {
     `SELECT * FROM bookings WHERE stripe_session_id = ?`
   ).bind(sessionId).all();
 
-  return json({ booking: results[0] ?? null }, 200, origin);
+  const booking = results[0] ?? null;
+
+  // Send confirmation email (only if we just confirmed — not on repeat visits)
+  if (booking && updateMeta.changes > 0) {
+    const siteUrl = env.SITE_URL ?? 'https://base1dpv-book.pages.dev';
+    await sendConfirmationEmail(booking, siteUrl).catch(err => console.error('Email error:', err));
+  }
+
+  return json({ booking }, 200, origin);
 }
 
 // ── POST /api/stripe/webhook ─────────────────────────────────────────────────
@@ -285,6 +293,78 @@ async function handleBookingIcs(token, env) {
       'Content-Type':        'text/calendar; charset=utf-8',
       'Content-Disposition': `attachment; filename="dpv-trip-${booking.date}.ics"`,
     },
+  });
+}
+
+// ── Email ────────────────────────────────────────────────────────────────────
+
+async function sendConfirmationEmail(booking, siteUrl) {
+  const balance = (booking.total_amount - booking.deposit_amount).toFixed(2);
+  const isIt = booking.lang === 'it';
+
+  const subject = isIt
+    ? `Prenotazione Confermata — DPV Snorkel ${booking.date}`
+    : `Booking Confirmed — DPV Snorkel ${booking.date}`;
+
+  const html = `
+    <div style="font-family:'Inter',Arial,sans-serif;max-width:560px;margin:0 auto;color:#2c2c2c">
+      <div style="background:#101820;padding:32px 24px;text-align:center;border-radius:12px 12px 0 0">
+        <h1 style="color:#fff;font-size:22px;margin:0 0 6px">
+          ${isIt ? 'Prenotazione Confermata!' : 'Booking Confirmed!'}
+        </h1>
+        <p style="color:rgba(255,255,255,.6);font-size:14px;margin:0">
+          ${isIt ? 'Il tuo deposito è stato ricevuto.' : 'Your deposit has been received.'}
+        </p>
+      </div>
+      <div style="background:#f9fafb;padding:28px 24px;border:1px solid #e5e7eb;border-top:none">
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Nome' : 'Name'}</td><td style="padding:8px 0;text-align:right;font-weight:600">${booking.name}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Data' : 'Date'}</td><td style="padding:8px 0;text-align:right;font-weight:600;color:#0693e3">${booking.date}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Ora' : 'Time'}</td><td style="padding:8px 0;text-align:right;font-weight:600;color:#0693e3">14:00 (2 PM)</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Ospiti' : 'Guests'}</td><td style="padding:8px 0;text-align:right;font-weight:600">${booking.guests}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Punto di ritrovo' : 'Meeting point'}</td><td style="padding:8px 0;text-align:right;font-weight:600">Base1 Sardinia · Viale Colombo 15, Cala Gonone</td></tr>
+          <tr style="border-top:1px solid #e5e7eb"><td style="padding:8px 0;color:#6b7280">${isIt ? 'Prezzo totale' : 'Total price'}</td><td style="padding:8px 0;text-align:right;font-weight:600">€${booking.total_amount.toFixed(2)}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Deposito pagato ✓' : 'Deposit paid ✓'}</td><td style="padding:8px 0;text-align:right;font-weight:600;color:#16a34a">€${booking.deposit_amount.toFixed(2)}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">${isIt ? 'Saldo il giorno' : 'Balance due on the day'}</td><td style="padding:8px 0;text-align:right;font-weight:600">€${balance}</td></tr>
+        </table>
+      </div>
+      <div style="padding:20px 24px;background:#fff;border:1px solid #e5e7eb;border-top:none">
+        <p style="font-size:13px;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin:0 0 16px">
+          💳 ${isIt ? `Porta <strong>€${balance}</strong> in contanti o carta il giorno dell'attività.` : `Please bring <strong>€${balance}</strong> cash or card on the day.`}
+        </p>
+        <p style="font-size:13px;color:#6b7280;margin:0 0 16px">
+          📍 <a href="https://www.google.com/maps/search/Base1+Sardinia+Viale+Colombo+15+Cala+Gonone" style="color:#0693e3">${isIt ? 'Apri in Google Maps' : 'Open in Google Maps'}</a>
+        </p>
+        <div style="text-align:center;margin:20px 0">
+          <a href="${siteUrl}/booking-success?session_id=${booking.stripe_session_id}" style="display:inline-block;padding:12px 28px;background:#0693e3;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">
+            ${isIt ? 'Vedi Prenotazione' : 'View Booking'}
+          </a>
+        </div>
+        <div style="text-align:center;margin:16px 0">
+          <a href="https://base1dpv.pages.dev/waiver.html" style="display:inline-block;padding:10px 24px;border:2px solid #0693e3;color:#0693e3;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
+            ${isIt ? 'Compila la Liberatoria' : 'Fill Liability Waiver'}
+          </a>
+        </div>
+      </div>
+      <div style="padding:20px 24px;text-align:center;font-size:12px;color:#6b7280;border-radius:0 0 12px 12px">
+        <p style="margin:0">Base One Sardinia · Viale Colombo 15, Cala Gonone</p>
+        <p style="margin:4px 0 0">
+          <a href="https://wa.me/message/BASEONE" style="color:#0693e3">WhatsApp</a> ·
+          <a href="https://base1dpv.pages.dev" style="color:#0693e3">Website</a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  await fetch('https://api.mailchannels.net/tx/v1/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: booking.email, name: booking.name }] }],
+      from: { email: 'booking@baseone.it', name: 'Base One Sardinia' },
+      subject,
+      content: [{ type: 'text/html', value: html }],
+    }),
   });
 }
 
