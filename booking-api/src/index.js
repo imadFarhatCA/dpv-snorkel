@@ -18,6 +18,7 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5180',
   'http://127.0.0.1:8080',
   'https://base1dpv.pages.dev',
+  'https://base1dpv-book.pages.dev',
   'https://dpv.baseone.it',
   'https://www.baseone.it',
 ];

@@ -28,11 +28,15 @@
     if (!sessionId) { error = true; loading = false; return; }
 
     try {
-      const res  = await fetch(`${API}/api/confirm?session_id=${sessionId}`);
+      const url = `${API}/api/confirm?session_id=${sessionId}`;
+      console.log('[DPV] Confirming booking:', url);
+      const res  = await fetch(url);
       const data = await res.json();
+      console.log('[DPV] Confirm response:', res.status, data);
       if (!res.ok || !data.booking) { error = true; loading = false; return; }
       booking = data.booking;
-    } catch {
+    } catch (err) {
+      console.error('[DPV] Confirm error:', err);
       error = true;
     } finally {
       loading = false;
