@@ -3,7 +3,7 @@ export const API =
   typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:8789'
-    : 'https://dpv-booking.baseone.workers.dev';
+    : 'https://dpv-booking.imad-farhat-c3c.workers.dev';
 
 /** Fetch with a timeout (default 15 s). Throws on timeout or network error. */
 export async function fetchWithTimeout(url, options = {}, ms = 15000) {

@@ -6,12 +6,12 @@ compatibility_date = "2024-09-23"
 PRICE_PER_PERSON = "90"
 MAX_GUESTS       = "8"
 DEPOSIT_PCT      = "0.5"
-SITE_URL         = "http://localhost:5180"  # update to production booking app URL on deploy
+SITE_URL         = "https://base1dpv.pages.dev"
 
 [[d1_databases]]
 binding       = "DB"
 database_name = "dpv-booking"
-database_id   = "local"               # replaced by real ID after: wrangler d1 create dpv-booking
+database_id   = "7913a431-fe46-4c9e-b9ae-6ff70df7a3fe"
 
 # Secrets — set with: wrangler secret put SECRET_NAME
 # STRIPE_SECRET_KEY
