@@ -226,7 +226,7 @@
             {/each}
           </div>
           <p class="included-note">
-            📍 {t('Meeting point: Porto di Cala Gonone · Arrive by 08:30', 'Punto di ritrovo: Porto di Cala Gonone · Arrivo entro le 08:30')}
+            📍 {t('Meeting point: Base1 Sardinia · Viale Colombo 15, Cala Gonone · 2:00 PM', 'Punto di ritrovo: Base1 Sardinia · Viale Colombo 15, Cala Gonone · 14:00')}
           </p>
         </div>
       </div>
@@ -243,7 +243,7 @@
           </div>
           <div>
             <div class="date-chip-date">{chipDate}</div>
-            <div class="date-chip-sub">{selectedDate?.slice(0,4)} · Porto di Cala Gonone · 08:30</div>
+            <div class="date-chip-sub">{selectedDate?.slice(0,4)} · Viale Colombo 15, Cala Gonone · 2:00 PM</div>
           </div>
         </div>
         <button class="date-chip-change" onclick={goToStep1}>
