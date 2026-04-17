@@ -4,6 +4,7 @@
   import { API, fetchWithTimeout } from '$lib/api.js';
   import fp from 'flatpickr';
   import 'flatpickr/dist/flatpickr.min.css';
+  import '$lib/flatpickr-theme.css';
   const flatpickr = fp.default ?? fp;
 
   // ── Helpers ──────────────────────────────────────
@@ -373,70 +374,6 @@
   .card-head-title { font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--color-muted); }
   .card-head-meta  { font-size:.78rem; color:var(--color-muted); }
   .card-body { padding:24px; }
-
-  /* ── Flatpickr ── */
-  :global(.flatpickr-calendar.inline) {
-    width:100% !important; max-width:100% !important;
-    box-shadow:none !important; border:none !important; background:transparent !important;
-  }
-  :global(.flatpickr-rContainer),
-  :global(.flatpickr-days),
-  :global(.dayContainer) { width:100% !important; min-width:100% !important; max-width:100% !important; }
-  :global(.flatpickr-day) {
-    max-width:none !important; flex:1 1 14.28% !important;
-    border-radius:var(--book-r) !important; height:42px !important; line-height:42px !important;
-  }
-  :global(.flatpickr-months) {
-    background:var(--book-dk); border-radius:var(--book-r-card); padding:8px; margin-bottom:12px;
-  }
-  :global(.flatpickr-month) {
-    background:transparent !important; color:#fff !important; fill:#fff !important;
-    height:auto !important; display:flex !important; align-items:center !important;
-    flex:1 !important; overflow:visible !important;
-  }
-  :global(.flatpickr-current-month) {
-    position:static !important; left:auto !important; width:100% !important; padding:0 !important;
-    display:flex !important; align-items:center !important; justify-content:space-between !important; gap:8px !important;
-  }
-  :global(.flatpickr-current-month .flatpickr-monthDropdown-months) {
-    appearance:none !important; -webkit-appearance:none !important;
-    background-color:var(--book-pill) !important; border:none !important; border-radius:var(--book-r) !important;
-    color:#fff !important; font-family:var(--font) !important; font-size:1.05rem !important; font-weight:700 !important;
-    padding:10px 34px 10px 14px !important; flex:1 !important; cursor:pointer !important;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
-    background-repeat:no-repeat !important; background-position:right 11px center !important;
-    transition:background-color .15s !important;
-  }
-  :global(.flatpickr-current-month .flatpickr-monthDropdown-months:hover) { background-color:var(--book-pill-hov) !important; }
-  :global(.flatpickr-current-month .numInputWrapper) {
-    background:var(--book-pill) !important; border-radius:var(--book-r) !important; border:none !important;
-    padding:0 !important; width:82px !important; flex-shrink:0 !important; transition:background .15s !important;
-  }
-  :global(.flatpickr-current-month .numInputWrapper:hover) { background:var(--book-pill-hov) !important; }
-  :global(.flatpickr-current-month .numInputWrapper span) { display:none !important; }
-  :global(.flatpickr-current-month input.cur-year) {
-    background:transparent !important; border:none !important; color:#fff !important;
-    font-family:var(--font) !important; font-size:1.05rem !important; font-weight:700 !important;
-    padding:10px 8px !important; width:100% !important; text-align:center !important;
-  }
-  :global(.flatpickr-prev-month), :global(.flatpickr-next-month) {
-    fill:rgba(255,255,255,.55) !important; color:rgba(255,255,255,.55) !important;
-    padding:6px 8px !important; position:static !important; display:flex !important; align-items:center !important;
-  }
-  :global(.flatpickr-prev-month:hover svg), :global(.flatpickr-next-month:hover svg) { fill:#fff !important; }
-  :global(.flatpickr-weekdays) { margin-top:4px; }
-  :global(.flatpickr-weekday) { color:var(--color-muted) !important; font-weight:600 !important; font-size:.78rem !important; }
-  :global(.flatpickr-day.available) {
-    background:var(--color-ocean-10); color:var(--color-ocean); font-weight:700;
-    box-shadow:inset 0 0 0 3px var(--color-bg);
-  }
-  :global(.flatpickr-day.available:hover),
-  :global(.flatpickr-day.selected),
-  :global(.flatpickr-day.selected:hover) {
-    background:var(--color-ocean) !important; border-color:var(--color-ocean) !important;
-    color:#fff !important; box-shadow:inset 0 0 0 3px rgba(255,255,255,.2) !important;
-  }
-  :global(.flatpickr-day.flatpickr-disabled) { opacity:1 !important; color:var(--color-disabled) !important; cursor:default; }
 
   /* ── Spots badge ── */
   .spots-row   { display:flex; align-items:center; justify-content:center; padding:12px 24px 18px; border-top:1px solid var(--color-border); }
