@@ -54,6 +54,7 @@ export default {
       if (path === '/api/dates'  && request.method === 'GET')  return handleDates(env, origin);
       if (path === '/api/book'   && request.method === 'POST') return handleBook(request, env, url, origin);
       if (path === '/api/confirm'&& request.method === 'GET')  return handleConfirm(request, env, origin);
+      if (path === '/api/waiver' && request.method === 'POST') return handleWaiver(request, env, origin);
       if (path === '/api/stripe/webhook' && request.method === 'POST') return handleWebhook(request, env);
 
       // Team webcal feed  — webcal://worker-url/calendar/feed.ics?token=xxx
@@ -341,7 +342,7 @@ async function sendConfirmationEmail(booking, siteUrl) {
           </a>
         </div>
         <div style="text-align:center;margin:16px 0">
-          <a href="https://base1dpv.pages.dev/waiver.html" style="display:inline-block;padding:10px 24px;border:2px solid #0693e3;color:#0693e3;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
+          <a href="https://base1dpv.pages.dev/waiver.html?token=${booking.ical_token}" style="display:inline-block;padding:10px 24px;border:2px solid #0693e3;color:#0693e3;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
             ${isIt ? 'Compila la Liberatoria' : 'Fill Liability Waiver'}
           </a>
         </div>
@@ -366,6 +367,48 @@ async function sendConfirmationEmail(booking, siteUrl) {
       content: [{ type: 'text/html', value: html }],
     }),
   });
+}
+
+// ── POST /api/waiver ─────────────────────────────────────────────────────────
+
+async function handleWaiver(request, env, origin) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ error: 'Invalid JSON' }, 400, origin); }
+
+  const { token, name, dob, nationality, emergency, isMinor, guardianName, guardianRelation, signature, guardianSignature } = body;
+
+  if (!token || !name?.trim() || !signature)
+    return json({ error: 'Missing required fields (token, name, signature)' }, 400, origin);
+
+  // Find booking by ical_token
+  const { results } = await env.DB.prepare(
+    'SELECT * FROM bookings WHERE ical_token = ?'
+  ).bind(token).all();
+
+  if (!results.length)
+    return json({ error: 'Booking not found' }, 404, origin);
+
+  const booking = results[0];
+
+  const waiverData = JSON.stringify({
+    name: name.trim(),
+    dob: dob || '',
+    nationality: nationality || '',
+    emergency: emergency || '',
+    isMinor: !!isMinor,
+    guardianName: guardianName || '',
+    guardianRelation: guardianRelation || '',
+    signature,
+    guardianSignature: guardianSignature || '',
+    signedAt: new Date().toISOString(),
+  });
+
+  await env.DB.prepare(
+    "UPDATE bookings SET waiver_data = ?, waiver_pdf_key = 'waiver_signed' WHERE ical_token = ?"
+  ).bind(waiverData, token).run();
+
+  return json({ success: true, booking_id: booking.id }, 200, origin);
 }
 
 // ── Date helper ──────────────────────────────────────────────────────────────

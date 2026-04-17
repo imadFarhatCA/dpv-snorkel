@@ -152,13 +152,37 @@ document.getElementById('waiverForm').addEventListener('submit', function(e) {
   const submitBtn = document.querySelector('.btn-generate');
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = submitBtn.textContent.replace(/generate/i, 'Generating…'); }
 
+  const signatureImg = captureCanvas(sigPad.canvas);
+  const guardianSignatureImg = isMinor ? captureCanvas(guardianSigPad.canvas) : null;
+
+  // POST waiver data to booking API if we have a booking token
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookingToken = urlParams.get('token');
+  if (bookingToken) {
+    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8789'
+      : 'https://dpv-booking.imad-farhat-c3c.workers.dev';
+
+    fetch(`${API}/api/waiver`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: bookingToken,
+        name, dob, nationality, emergency,
+        isMinor, guardianName, guardianRelation,
+        signature: signatureImg,
+        guardianSignature: guardianSignatureImg
+      })
+    }).catch(err => console.error('Waiver API error:', err));
+  }
+
   try {
     buildPDF({
       lang: window.currentLang,
       name, dob, nationality, emergency,
       isMinor, guardianName, guardianRelation,
-      signatureImg: captureCanvas(sigPad.canvas),
-      guardianSignatureImg: isMinor ? captureCanvas(guardianSigPad.canvas) : null,
+      signatureImg,
+      guardianSignatureImg,
       date: new Date().toLocaleDateString(window.currentLang === 'it' ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
       timestamp: new Date().toLocaleString(window.currentLang === 'it' ? 'it-IT' : 'en-GB')
     });
