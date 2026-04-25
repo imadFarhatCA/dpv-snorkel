@@ -87,7 +87,7 @@
 
   // ── Guest counter ─────────────────────────────────
   function changeGuests(delta) {
-    guestCount = Math.max(1, Math.min(spotsLeft, guestCount + delta));
+    guestCount = Math.max(1, Math.min(8, guestCount + delta));
   }
 
   // ── Submit ────────────────────────────────────────
@@ -254,7 +254,7 @@
       <div class="book-card">
         <div class="card-head">
           <span class="card-head-title">{t('Number of Guests', 'Numero di Ospiti')}</span>
-          <span class="card-head-meta">{spotsLeft} {t('spots left', 'posti disponibili')}</span>
+          <span class="card-head-meta">{t('max 8 guests', 'max 8 ospiti')}</span>
         </div>
         <div class="card-body">
           <div class="guest-counter">
@@ -265,7 +265,7 @@
             <div class="guest-controls">
               <button class="guest-btn" onclick={() => changeGuests(-1)} disabled={guestCount <= 1} aria-label={t('Remove guest','Rimuovi ospite')}>−</button>
               <span class="guest-count" aria-live="polite">{guestCount}</span>
-              <button class="guest-btn" onclick={() => changeGuests(1)}  disabled={guestCount >= spotsLeft} aria-label={t('Add guest','Aggiungi ospite')}>+</button>
+              <button class="guest-btn" onclick={() => changeGuests(1)}  disabled={guestCount >= 8} aria-label={t('Add guest','Aggiungi ospite')}>+</button>
             </div>
           </div>
         </div>
