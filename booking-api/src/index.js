@@ -124,9 +124,12 @@ async function handleDates(env, origin) {
 
   const bookedMap = Object.fromEntries(booked.map(r => [r.date, r.booked]));
 
+  // Always show dates as available — overbookings are handled in backoffice
   const dates = openDates
-    .map(d => ({ date: d, spots_left: dateMap[d] - (bookedMap[d] ?? 0) }))
-    .filter(r => r.spots_left > 0);
+    .map(d => {
+      const spotsLeft = dateMap[d] - (bookedMap[d] ?? 0);
+      return { date: d, spots_left: Math.max(spotsLeft, 1) };
+    });
 
   return json({ dates }, 200, origin);
 }
@@ -155,18 +158,21 @@ async function handleBook(request, env, url, origin) {
   if (maxGuests === 0)
     return json({ error: 'Date not available' }, 400, origin);
 
+  // Allow overbooking — backoffice will flag and manage overflow
   const { results: bookCheck } = await env.DB.prepare(`
     SELECT COALESCE(SUM(guests), 0) AS booked
     FROM bookings WHERE date = ? AND status = 'confirmed'
   `).bind(date).all();
 
-  const spotsLeft = maxGuests - (bookCheck[0]?.booked ?? 0);
-  if (guests > spotsLeft)
-    return json({ error: `Only ${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left for this date` }, 400, origin);
+  const booked = bookCheck[0]?.booked ?? 0;
+  const isOverbooked = (booked + guests) > maxGuests;
 
   const totalAmount   = guests * PRICE_PER_PERSON;
   const depositAmount = totalAmount; // full payment — no deposit split
   const icalToken     = crypto.randomUUID().replace(/-/g, '');
+  const bookingNotes  = isOverbooked
+    ? `[OVERBOOKED] ${notes.trim()}`.trim()
+    : notes.trim();
 
   // Create pending booking
   const { meta } = await env.DB.prepare(`
@@ -175,7 +181,7 @@ async function handleBook(request, env, url, origin) {
   `).bind(
     date, name.trim(), email.trim().toLowerCase(),
     phone.trim(), guests, totalAmount, depositAmount,
-    icalToken, lang, notes.trim()
+    icalToken, lang, bookingNotes
   ).run();
 
   const bookingId = meta.last_row_id;
