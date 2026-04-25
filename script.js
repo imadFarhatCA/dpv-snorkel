@@ -22,8 +22,23 @@ function setLang(lang) {
   document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
 }
 
-// Stamp current year into any element with [data-current-year].
 document.addEventListener('DOMContentLoaded', () => {
-  const y = new Date().getFullYear();
-  document.querySelectorAll('[data-current-year]').forEach(el => { el.textContent = y; });
+  const cfg = window.DPV_CONFIG || {};
+
+  // Stamp current year.
+  document.querySelectorAll('[data-current-year]').forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+
+  // Hydrate text content from config: <span data-cfg="KEY"></span>
+  document.querySelectorAll('[data-cfg]').forEach(el => {
+    const val = cfg[el.dataset.cfg];
+    if (val !== undefined) el.textContent = val;
+  });
+
+  // Hydrate hrefs from config: <a data-cfg-href="KEY">
+  document.querySelectorAll('[data-cfg-href]').forEach(el => {
+    const val = cfg[el.dataset.cfgHref];
+    if (val !== undefined) el.href = val;
+  });
 });

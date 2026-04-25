@@ -3,11 +3,8 @@
  * Shared email layout, confirmation, and reschedule templates.
  */
 
-const BRAND = { color: '#0693e3', dark: '#101820', green: '#16a34a', warn: '#92400e' };
-const MEETING = 'Base1 Sardinia · Viale Colombo 15, Cala Gonone';
-const MAPS_URL = 'https://www.google.com/maps/search/Base1+Sardinia+Viale+Colombo+15+Cala+Gonone';
-const SITE_URL_MAIN = 'https://base1dpv.pages.dev';
-const FROM = { email: 'booking@baseone.it', name: 'Base One Sardinia' };
+import { BRAND, MEETING_POINT as MEETING, MAPS_URL, SITE_URL_MAIN, BOOKING_EMAIL } from './config.js';
+const FROM = { email: BOOKING_EMAIL, name: 'Base One Sardinia' };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

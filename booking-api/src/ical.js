@@ -4,9 +4,7 @@
  * Compatible with: iPhone Calendar, Google Calendar, Outlook, Apple Calendar.
  */
 
-const LOCATION = 'Porto di Cala Gonone, Nuoro, Sardinia, Italy';
-const ORGANIZER_EMAIL = 'info@baseone.it';
-const ORGANIZER_NAME  = 'Base One';
+import { ICAL_LOCATION as LOCATION, ORGANIZER_EMAIL, ORGANIZER_NAME, ARRIVAL_TIME } from './config.js';
 
 function esc(str) {
   return String(str ?? '')
@@ -51,11 +49,11 @@ export function generateBookingIcs(booking) {
       `Date: ${booking.date}\n` +
       `Guests: ${booking.guests}\n` +
       `Meeting point: Porto di Cala Gonone\n` +
-      `Arrive by: 08:30\n` +
+      `Arrive by: ${ARRIVAL_TIME}\n` +
       `\n` +
       `Total paid: €${booking.total_amount.toFixed(2)}\n` +
       `\n` +
-      `Questions? WhatsApp or email info@baseone.it`
+      `Questions? WhatsApp or email ${ORGANIZER_EMAIL}`
     )}`,
     `LOCATION:${esc(LOCATION)}`,
     `ORGANIZER;CN="${esc(ORGANIZER_NAME)}":mailto:${ORGANIZER_EMAIL}`,

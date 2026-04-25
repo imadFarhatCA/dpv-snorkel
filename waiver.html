@@ -10,20 +10,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="lib/config.js"></script>
+  <script src="lib/nav.js" defer></script>
+  <script src="lib/lang-toggle.js" defer></script>
   <script src="lib/footer.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body class="inner-page">
 
-  <nav class="nav">
-    <a href="index.html" class="nav-logo" title="DPV Snorkel Experience">
-      <img src="resourcesImages/logo_base1.png" alt="Base One Logo" />
-    </a>
-    <div class="nav-right">
-      <a href="index.html" class="nav-back">← Back to Experience</a>
-      <a href="cancellation.html" class="btn btn-sm">Cancellation Policy</a>
-    </div>
-  </nav>
+  <div data-nav-mount
+    data-back-url="index.html"
+    data-back-label="← Back to Experience"
+    data-cta-url="cancellation.html"
+    data-cta-label="Cancellation Policy"></div>
 
   <div class="page-hero">
     <p class="eyebrow">Base1 Sardinia · DPV Snorkelling Experience</p>
@@ -32,10 +30,7 @@
   </div>
 
   <div class="waiver-wrap">
-    <div class="lang-toggle lang-toggle-content" role="group" aria-label="Language">
-      <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English">English</button>
-      <button class="lang-btn" data-lang="it" onclick="setLang('it')" aria-label="Passa all'italiano">Italiano</button>
-    </div>
+    <div data-lang-toggle-mount></div>
 
     <p class="waiver-intro en">
       Before your session, every participant must read and sign this Release of Liability, Waiver of Claims and Assumption of Risk Agreement. Fill in the form below and download a signed PDF copy for your records. The guide will also have a copy to verify on the day.

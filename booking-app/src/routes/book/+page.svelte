@@ -13,15 +13,17 @@
   }
 
   // ── State ────────────────────────────────────────
-  let step          = $state(1);
-  let _dates        = {};             // plain object for flatpickr (no proxy)
-  let availableDates= $state({});     // reactive copy for UI
-  let selectedDate  = $state(null);
-  let guestCount    = $state(1);
-  let alertMsg      = $state('');
-  let alertType     = $state('');
-  let submitting    = $state(false);
-  let fpInstance    = null;
+  let step            = $state(1);
+  let _dates          = {};             // plain object for flatpickr (no proxy)
+  let availableDates  = $state({});     // reactive copy for UI
+  let selectedDate    = $state(null);
+  let guestCount      = $state(1);
+  let alertMsg        = $state('');
+  let alertType       = $state('');
+  let submitting      = $state(false);
+  let fpInstance      = null;
+  let overbookedModal = $state(false);
+  let suggestedDate   = $state(null);
 
   // ── Form fields ──────────────────────────────────
   let name  = $state('');
@@ -51,11 +53,39 @@
 
   // ── Flatpickr ────────────────────────────────────
   function markAvailable(inst) {
-    inst.calendarContainer.querySelectorAll('.flatpickr-day.available')
-      .forEach(el => el.classList.remove('available'));
+    inst.calendarContainer.querySelectorAll('.flatpickr-day.available, .flatpickr-day.full')
+      .forEach(el => { el.classList.remove('available'); el.classList.remove('full'); });
     inst.calendarContainer
       .querySelectorAll('.flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay)')
-      .forEach(el => el.classList.add('available'));
+      .forEach(el => {
+        const key = el.dateObj ? toKey(el.dateObj) : null;
+        if (key && _dates[key] === 0) {
+          el.classList.add('full');
+        } else {
+          el.classList.add('available');
+        }
+      });
+  }
+
+  function closestAvailable(fromDate) {
+    const from = new Date(fromDate + 'T12:00:00Z');
+    const next = Object.entries(_dates)
+      .filter(([k, v]) => v > 0 && new Date(k + 'T12:00:00Z') > from)
+      .sort(([a], [b]) => a.localeCompare(b));
+    return next[0]?.[0] ?? null;
+  }
+
+  function fmtDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T12:00:00Z');
+    const days = lang.value === 'en'
+      ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+      : ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    return lang.value === 'en'
+      ? `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}`
+      : `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]}`;
   }
 
   function initCalendar() {
@@ -66,13 +96,20 @@
       minDate:    'today',
       dateFormat: 'Y-m-d',
       locale:     { firstDayOfWeek: 1 },
-      disable: [date => !_dates[toKey(date)]],
+      disable: [date => !(toKey(date) in _dates)],
       onReady(_, __, inst)       { setTimeout(() => markAvailable(inst), 50); },
       onMonthChange(_, __, inst) { setTimeout(() => markAvailable(inst), 50); },
       onChange(selected) {
         if (!selected.length) return;
-        selectedDate = toKey(selected[0]);
-        guestCount   = 1;
+        const key = toKey(selected[0]);
+        selectedDate = key;
+        if ((_dates[key] ?? 0) === 0) {
+          suggestedDate = closestAvailable(key);
+          overbookedModal = true;
+          setTimeout(() => fpInstance?.clear(), 0);
+          return;
+        }
+        guestCount = 1;
         setTimeout(() => { step = 2; }, 320);
       },
     });
@@ -326,6 +363,38 @@
   </div>
 </div>
 
+<!-- ── Overbooked modal ── -->
+{#if overbookedModal}
+  <div class="modal-backdrop" onclick={() => overbookedModal = false} onkeydown={(e) => e.key === 'Escape' && (overbookedModal = false)} role="button" tabindex="-1" aria-label="Close dialog">
+    <div class="modal-box" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1">
+      <button class="modal-close" onclick={() => overbookedModal = false} aria-label="Close">✕</button>
+      <div class="modal-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="#f59e0b"/>
+        </svg>
+      </div>
+      <h3 class="modal-title">{t('Date Fully Booked', 'Data al Completo')}</h3>
+      <p class="modal-text">
+        {t('The day you picked is fully booked.', 'La data selezionata è al completo.')}
+      </p>
+      {#if suggestedDate}
+        <p class="modal-suggest">
+          {t('Next available date:', 'Prossima data disponibile:')}
+          <strong> {fmtDate(suggestedDate)}</strong>
+        </p>
+        <button class="modal-btn-suggest" onclick={() => { overbookedModal = false; fpInstance?.setDate(suggestedDate); }}>
+          {t('Pick this date →', 'Scegli questa data →')}
+        </button>
+        <p class="modal-or">{t('or', 'oppure')}</p>
+      {/if}
+      <a href="https://wa.me/message/BASEONE" target="_blank" rel="noopener" class="modal-btn-wa">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        {t('Message us on WhatsApp', 'Scrivici su WhatsApp')}
+      </a>
+    </div>
+  </div>
+{/if}
+
 <style>
   /* ── Page ── */
   .book-page  { min-height: 100vh; background: var(--book-bg); padding-top: var(--nav-h); }
@@ -441,6 +510,47 @@
   .btn-pay:disabled { opacity:.5; cursor:default; }
   .pay-note { text-align:center; font-size:.76rem; color:var(--color-muted); margin-top:10px; }
   .spinner  { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── Overbooked modal ── */
+  .modal-backdrop {
+    position:fixed; inset:0; z-index:100;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    border:none; cursor:default;
+  }
+  .modal-box {
+    background:#fff; border-radius:16px; padding:32px 28px 28px;
+    max-width:360px; width:100%; position:relative;
+    box-shadow:0 20px 60px rgba(0,0,0,.25); text-align:center;
+  }
+  .modal-close {
+    position:absolute; top:12px; right:14px;
+    background:none; border:none; font-size:1rem; color:var(--color-muted);
+    cursor:pointer; padding:4px; line-height:1;
+  }
+  .modal-close:hover { color:var(--color-charcoal); }
+  .modal-icon    { margin-bottom:12px; }
+  .modal-title   { font-size:1.1rem; font-weight:700; color:var(--color-charcoal); margin-bottom:8px; }
+  .modal-text    { font-size:.88rem; color:var(--color-muted); margin-bottom:6px; }
+  .modal-suggest { font-size:.88rem; color:var(--color-charcoal); margin-bottom:14px; }
+  .modal-or      { font-size:.8rem; color:var(--color-muted); margin:10px 0; }
+  .modal-btn-suggest {
+    display:block; width:100%; padding:12px;
+    background:rgba(6,147,227,.08); border:1.5px solid var(--color-ocean);
+    color:var(--color-ocean); border-radius:var(--book-r);
+    font-family:var(--font); font-size:.9rem; font-weight:700;
+    cursor:pointer; transition:background .15s;
+  }
+  .modal-btn-suggest:hover { background:rgba(6,147,227,.16); }
+  .modal-btn-wa {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px;
+    background:#25D366; color:#fff; border-radius:var(--book-r);
+    font-family:var(--font); font-size:.95rem; font-weight:700;
+    text-decoration:none; transition:background .15s;
+  }
+  .modal-btn-wa:hover { background:#1ebe5c; }
 
   /* ── Alert ── */
   .alert       { padding:11px 14px; border-radius:var(--book-r); font-size:.86rem; margin-bottom:14px; }

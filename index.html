@@ -11,21 +11,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="dns-prefetch" href="//www.youtube.com" />
   <script src="lib/config.js"></script>
+  <script src="lib/nav.js" defer></script>
   <script src="lib/footer.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
 
   <!-- NAV -->
-  <nav class="nav">
-    <a href="/" class="nav-logo" title="DPV Snorkel Experience">
-      <img src="resourcesImages/logo_base1.png" alt="Base One Logo" />
-    </a>
-    <div class="nav-right">
-      <a href="https://www.baseone.it" class="nav-back">← Back to Base One</a>
-      <a href="https://base1dpv-book.pages.dev/book" class="btn btn-sm">Check Dates & Book</a>
-    </div>
-  </nav>
+  <div data-nav-mount
+    data-back-url="https://www.baseone.it"
+    data-back-label="← Back to Base One"
+    data-cta-url="https://base1dpv-book.pages.dev/book"
+    data-cta-label="Check Dates &amp; Book"></div>
 
   <!-- HERO -->
   <section class="hero">
@@ -42,7 +39,7 @@
         <li>No scuba required</li>
       </ul>
       <div class="hero-ctas">
-        <a href="https://base1dpv-book.pages.dev/book" class="btn btn-primary">Check Dates & Book</a>
+        <a data-cfg-href="BOOK_URL" class="btn btn-primary">Check Dates &amp; Book</a>
         <a href="#contact" class="btn btn-ghost">Ask a Question</a>
       </div>
     </div>
@@ -72,7 +69,7 @@
         </div>
         <div class="info-text">
           <span class="info-label">Meeting Point</span>
-          <span class="info-value">Base1 Sardinia · Viale Colombo 15, Cala Gonone</span>
+          <span class="info-value" data-cfg="MEETING_POINT">Base1 Sardinia · Viale Colombo 15, Cala Gonone</span>
           <span class="info-sub">Arrive 30 mins early</span>
         </div>
       </div>
@@ -85,8 +82,8 @@
         </div>
         <div class="info-text">
           <span class="info-label">Price</span>
-          <span class="info-price"><s style="opacity:.5;font-size:.7em;color:#888;text-decoration:line-through">€ 120</s> € 90 <span class="info-price-unit">per person</span></span>
-          <span class="info-sub" style="color:#16a34a;font-weight:600">Promotion · all gear included</span>
+          <span class="info-price"><s class="price-original">€ <span data-cfg="PRICE_ORIGINAL">120</span></s> € <span data-cfg="PRICE_PER_PERSON">90</span> <span class="info-price-unit">per person</span></span>
+          <span class="info-sub promo-text">Promotion · all gear included</span>
         </div>
       </div>
 
@@ -127,42 +124,18 @@
     </div>
     <div class="video-slider-wrap">
       <div class="video-slider" id="videoSlider">
-        <div class="video-card">
-          <img src="resourcesImages/web/DJI_0386-gallery.jpg" alt="Aerial view of snorkellers with DPV scooters" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/_V6A5925-gallery.jpg" alt="Two participants side by side with DPV scooters" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/_V6A5839-gallery.jpg" alt="Participant gliding underwater with a DPV scooter" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/DJI_0393-gallery.jpg" alt="Aerial view of four snorkellers from above" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/_V6A5950-gallery.jpg" alt="Snorkeller at the surface with a DPV scooter" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/_V6A5504-gallery.jpg" alt="Group underwater with DPV scooters" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/DJI_0458-gallery.jpg" alt="Aerial view of group in shallow crystal water" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/_V6A5926-gallery.jpg" alt="Couple gliding side by side with DPV scooters" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/DJI_0452-gallery.jpg" alt="Aerial view of snorkellers in crystal water" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/IMG_4203-gallery.jpg" alt="Participants on the boat before the session" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/R5A_5949-gallery.jpg" alt="Snorkeller gliding with DPV scooter" loading="lazy" />
-        </div>
-        <div class="video-card">
-          <img src="resourcesImages/web/R5A_6060-gallery.jpg" alt="Group snorkelling along the coast" loading="lazy" />
-        </div>
+        <div class="video-card"><img src="resourcesImages/web/DJI_0386-gallery.jpg" alt="Aerial view of snorkellers with DPV scooters" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/_V6A5925-gallery.jpg" alt="Two participants side by side with DPV scooters" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/_V6A5839-gallery.jpg" alt="Participant gliding underwater with a DPV scooter" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/DJI_0393-gallery.jpg" alt="Aerial view of four snorkellers from above" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/_V6A5950-gallery.jpg" alt="Snorkeller at the surface with a DPV scooter" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/_V6A5504-gallery.jpg" alt="Group underwater with DPV scooters" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/DJI_0458-gallery.jpg" alt="Aerial view of group in shallow crystal water" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/_V6A5926-gallery.jpg" alt="Couple gliding side by side with DPV scooters" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/DJI_0452-gallery.jpg" alt="Aerial view of snorkellers in crystal water" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/IMG_4203-gallery.jpg" alt="Participants on the boat before the session" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/R5A_5949-gallery.jpg" alt="Snorkeller gliding with DPV scooter" loading="lazy" /></div>
+        <div class="video-card"><img src="resourcesImages/web/R5A_6060-gallery.jpg" alt="Group snorkelling along the coast" loading="lazy" /></div>
       </div>
     </div>
   </section>
@@ -215,34 +188,10 @@
       <h2>Just a few steps, then you're flying</h2>
       <p class="step-intro"><a href="#gallery">Check out the gallery</a> to get an idea of what to expect.</p>
       <div class="steps">
-        <div class="step">
-          <span class="step-num">01</span>
-          <div>
-            <h3>Meet the Base1 Team</h3>
-            <p>Arrive, gear up, and get comfortable.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">02</span>
-          <div>
-            <h3>Briefing on board (during transit)</h3>
-            <p>We explain DPV basics, safe spacing, what to do if you stop or need assistance, and simple equalisation tips.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">03</span>
-          <div>
-            <h3>Supervised water session (~90 minutes)</h3>
-            <p>We snorkel and glide as a group, with clear boundaries and support.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">04</span>
-          <div>
-            <h3>Back on board</h3>
-            <p>Relax, dry off, and enjoy the ride back.</p>
-          </div>
-        </div>
+        <div class="step"><span class="step-num">01</span><div><h3>Meet the Base1 Team</h3><p>Arrive, gear up, and get comfortable.</p></div></div>
+        <div class="step"><span class="step-num">02</span><div><h3>Briefing on board (during transit)</h3><p>We explain DPV basics, safe spacing, what to do if you stop or need assistance, and simple equalisation tips.</p></div></div>
+        <div class="step"><span class="step-num">03</span><div><h3>Supervised water session (~90 minutes)</h3><p>We snorkel and glide as a group, with clear boundaries and support.</p></div></div>
+        <div class="step"><span class="step-num">04</span><div><h3>Back on board</h3><p>Relax, dry off, and enjoy the ride back.</p></div></div>
       </div>
     </div>
   </section>
@@ -288,7 +237,7 @@
       <h2>Reserve your spot.</h2>
       <p class="lead">Trips run on selected days, based on sea conditions and availability. Spots are limited to keep the group experience premium and safe.</p>
       <div style="margin-top: 2.5rem;">
-        <a href="https://base1dpv-book.pages.dev/book" class="btn btn-primary btn-large">Choose a Date & Book</a>
+        <a data-cfg-href="BOOK_URL" class="btn btn-primary btn-large">Choose a Date &amp; Book</a>
       </div>
     </div>
   </section>
@@ -353,14 +302,14 @@
     <div class="container container-narrow text-center">
       <h2>Still have questions?</h2>
       <p class="lead">We respond fast. Message us on WhatsApp or use the contact form on the main site.</p>
-      <div class="hero-ctas" style="justify-content: center; margin-top: 2rem;">
-        <a href="https://wa.me/message/BASEONE" class="btn btn-primary">Chat on WhatsApp</a>
+      <div class="hero-ctas contact-ctas">
+        <a data-cfg-href="WHATSAPP_URL" class="btn btn-primary">Chat on WhatsApp</a>
         <a href="https://www.baseone.it/contact" class="btn btn-ghost-light">Contact Form</a>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER (rendered by lib/footer.js) -->
+  <!-- FOOTER -->
   <div data-footer-mount></div>
 
 </body>
