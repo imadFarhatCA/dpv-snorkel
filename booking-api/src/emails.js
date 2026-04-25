@@ -13,23 +13,19 @@ const FROM = { email: 'booking@baseone.it', name: 'Base One Sardinia' };
 
 function t(lang, en, it) { return lang === 'it' ? it : en; }
 
-function bookingBalance(b) { return (b.total_amount - b.deposit_amount).toFixed(2); }
-
 function row(label, value, style = '') {
   return `<tr><td style="padding:8px 0;color:#6b7280">${label}</td><td style="padding:8px 0;text-align:right;font-weight:600;${style}">${value}</td></tr>`;
 }
 
 function bookingRows(b) {
-  const lang = b.lang, bal = bookingBalance(b);
+  const lang = b.lang;
   return [
     row(t(lang, 'Name', 'Nome'), b.name),
     row(t(lang, 'Date', 'Data'), b.date, `color:${BRAND.color}`),
     row(t(lang, 'Time', 'Ora'), '14:00 (2 PM)', `color:${BRAND.color}`),
     row(t(lang, 'Guests', 'Ospiti'), b.guests),
     row(t(lang, 'Meeting point', 'Punto di ritrovo'), MEETING),
-    `<tr style="border-top:1px solid #e5e7eb">${row(t(lang, 'Total price', 'Prezzo totale'), `€${b.total_amount.toFixed(2)}`).slice(4)}`,
-    row(t(lang, 'Deposit paid ✓', 'Deposito pagato ✓'), `€${b.deposit_amount.toFixed(2)}`, `color:${BRAND.green}`),
-    row(t(lang, 'Balance due on the day', 'Saldo il giorno'), `€${bal}`),
+    `<tr style="border-top:1px solid #e5e7eb">${row(t(lang, 'Total paid ✓', 'Totale pagato ✓'), `€${b.total_amount.toFixed(2)}`, `color:${BRAND.green}`).slice(4)}`,
   ].join('');
 }
 
@@ -58,10 +54,9 @@ function btn(href, label, outline = false) {
     : `<a href="${href}" style="display:inline-block;padding:12px 28px;background:${BRAND.color};color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">${label}</a>`;
 }
 
-function balanceNote(b) {
-  const bal = bookingBalance(b);
-  return `<p style="font-size:13px;color:${BRAND.warn};background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin:0 0 16px">
-    💳 ${t(b.lang, `Please bring <strong>€${bal}</strong> cash or card on the day.`, `Porta <strong>€${bal}</strong> in contanti o carta il giorno dell'attività.`)}
+function paidNote(b) {
+  return `<p style="font-size:13px;color:${BRAND.green};background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin:0 0 16px">
+    ✅ ${t(b.lang, `Your payment of <strong>€${b.total_amount.toFixed(2)}</strong> has been received. Nothing to pay on the day.`, `Il pagamento di <strong>€${b.total_amount.toFixed(2)}</strong> è stato ricevuto. Nulla da pagare il giorno dell'attività.`)}
   </p>`;
 }
 
@@ -78,7 +73,7 @@ export function confirmationEmail(booking, siteUrl) {
     <table style="width:100%;border-collapse:collapse;font-size:14px">${bookingRows(booking)}</table>
   </div>
   <div style="padding:20px 24px;background:#fff;border:1px solid #e5e7eb;border-top:none">
-    ${balanceNote(booking)}
+    ${paidNote(booking)}
     ${mapsLink(lang)}
     <div style="text-align:center;margin:20px 0">
       ${btn(`${siteUrl}/booking-success?session_id=${booking.stripe_session_id}`, t(lang, 'View Booking', 'Vedi Prenotazione'))}
@@ -92,7 +87,7 @@ export function confirmationEmail(booking, siteUrl) {
     subject: t(lang, `Booking Confirmed — DPV Snorkel ${booking.date}`, `Prenotazione Confermata — DPV Snorkel ${booking.date}`),
     html: emailShell(
       t(lang, 'Booking Confirmed!', 'Prenotazione Confermata!'),
-      t(lang, 'Your deposit has been received.', 'Il tuo deposito è stato ricevuto.'),
+      t(lang, 'Your payment has been received.', 'Il tuo pagamento è stato ricevuto.'),
       body, lang
     )
   };

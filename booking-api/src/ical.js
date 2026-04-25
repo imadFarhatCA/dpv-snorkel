@@ -33,8 +33,6 @@ function stamp() {
 
 /** Single booking .ics — sent to the customer */
 export function generateBookingIcs(booking) {
-  const balance = (booking.total_amount - booking.deposit_amount).toFixed(2);
-
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -55,9 +53,7 @@ export function generateBookingIcs(booking) {
       `Meeting point: Porto di Cala Gonone\n` +
       `Arrive by: 08:30\n` +
       `\n` +
-      `Total: €${booking.total_amount.toFixed(2)}\n` +
-      `Deposit paid: €${booking.deposit_amount.toFixed(2)}\n` +
-      `Balance due on the day: €${balance}\n` +
+      `Total paid: €${booking.total_amount.toFixed(2)}\n` +
       `\n` +
       `Questions? WhatsApp or email info@baseone.it`
     )}`,
@@ -89,9 +85,7 @@ export function generateFeedIcs(bookings) {
         `Email: ${b.email}\n` +
         `Phone: ${b.phone || 'N/A'}\n` +
         `Guests: ${b.guests}\n` +
-        `Total: €${b.total_amount?.toFixed(2)}\n` +
-        `Deposit paid: €${b.deposit_amount?.toFixed(2)}\n` +
-        `Balance due: €${(b.total_amount - b.deposit_amount).toFixed(2)}\n` +
+        `Total paid: €${b.total_amount?.toFixed(2)}\n` +
         `Notes: ${b.notes || 'None'}`
       )}`,
       `LOCATION:${esc(LOCATION)}`,

@@ -31,8 +31,6 @@
   // ── Derived ──────────────────────────────────────
   let spotsLeft = $derived(selectedDate ? (availableDates[selectedDate] ?? 0) : 0);
   let total     = $derived(guestCount * 90);
-  let deposit   = $derived(total * 0.5);
-  let balance   = $derived(total * 0.5);
 
   let chipDate = $derived.by(() => {
     if (!selectedDate) return '—';
@@ -48,7 +46,7 @@
   });
 
   let payLabel = $derived(
-    t(`Pay Deposit — €${deposit}`, `Paga Deposito — €${deposit}`)
+    t(`Pay Now — €${total}`, `Paga Ora — €${total}`)
   );
 
   // ── Flatpickr ────────────────────────────────────
@@ -190,7 +188,7 @@
       <div class="book-card">
         <div class="card-head">
           <span class="card-head-title">{t('Select a Date', 'Scegli una Data')}</span>
-          <span class="card-head-meta">€90 / {t('person', 'persona')} · max 8</span>
+          <span class="card-head-meta"><s style="color:var(--color-muted);opacity:.6">€120</s> €90 / {t('person', 'persona')} · max 8</span>
         </div>
         <div class="card-body" style="padding-bottom:0">
           <div id="fp-calendar"></div>
@@ -262,7 +260,7 @@
           <div class="guest-counter">
             <div>
               <div class="guest-label">{t('Guests', 'Ospiti')}</div>
-              <div class="guest-sub">€90 {t('per person', 'a persona')}</div>
+              <div class="guest-sub"><s style="opacity:.5">€120</s> €90 {t('per person', 'a persona')}</div>
             </div>
             <div class="guest-controls">
               <button class="guest-btn" onclick={() => changeGuests(-1)} disabled={guestCount <= 1} aria-label={t('Remove guest','Rimuovi ospite')}>−</button>
@@ -302,11 +300,10 @@
 
             <!-- Price summary -->
             <div class="price-summary">
-              <div class="price-row"><span class="price-label">{t('Price per person','Prezzo a persona')}</span><span>€90</span></div>
+              <div class="price-row"><span class="price-label">{t('Price per person','Prezzo a persona')}</span><span><s class="old-price">€120</s> <strong>€90</strong></span></div>
+              <div class="price-row promo"><span>🔥 {t('Promotion','Promozione')}</span><span>−25%</span></div>
               <div class="price-row"><span class="price-label">{t('Guests','Ospiti')}</span><span>{guestCount}</span></div>
               <div class="price-row total"><span>{t('Total','Totale')}</span><span>€{total}</span></div>
-              <div class="price-row deposit"><span>⚡ {t('Deposit due today (50%)','Deposito oggi (50%)')}</span><span>€{deposit}</span></div>
-              <div class="price-row"><span class="price-label">{t('Balance on the day','Saldo il giorno')}</span><span>€{balance}</span></div>
             </div>
 
             <button type="submit" class="btn-pay" disabled={submitting}>
@@ -317,7 +314,7 @@
                 {payLabel}
               {/if}
             </button>
-            <p class="pay-note">{t('Secure payment via Stripe · Redirected to complete deposit','Pagamento sicuro via Stripe · Reindirizzato per il deposito')}</p>
+            <p class="pay-note">{t('Secure payment via Stripe · Full payment','Pagamento sicuro via Stripe · Pagamento completo')}</p>
           </form>
         </div>
       </div>
@@ -427,8 +424,9 @@
   .price-row     { display:flex; justify-content:space-between; align-items:center; padding:11px 16px; font-size:.88rem; border-bottom:1px solid var(--color-border); }
   .price-row:last-child { border:none; }
   .price-row.total   { font-weight:700; font-size:.95rem; background:var(--color-row-alt); }
-  .price-row.deposit { color:var(--color-ocean); font-weight:700; background:var(--color-ocean-04); }
+  .price-row.promo { color:var(--color-success, #16a34a); font-weight:700; background:rgba(22,163,106,.06); }
   .price-label { color:var(--color-muted); }
+  .old-price { color:var(--color-muted); opacity:.6; text-decoration:line-through; margin-right:4px; font-weight:400; }
 
   /* ── Pay ── */
   .btn-pay {

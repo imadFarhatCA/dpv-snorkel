@@ -9,7 +9,6 @@ import { confirmationEmail, sendEmail } from './emails.js';
 
 const PRICE_PER_PERSON = 90;
 const MAX_GUESTS       = 8;
-const DEPOSIT_PCT      = 0.5;
 
 // ── CORS ────────────────────────────────────────────────────────────────────
 
@@ -166,7 +165,7 @@ async function handleBook(request, env, url, origin) {
     return json({ error: `Only ${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left for this date` }, 400, origin);
 
   const totalAmount   = guests * PRICE_PER_PERSON;
-  const depositAmount = totalAmount * DEPOSIT_PCT;
+  const depositAmount = totalAmount; // full payment — no deposit split
   const icalToken     = crypto.randomUUID().replace(/-/g, '');
 
   // Create pending booking
@@ -183,7 +182,7 @@ async function handleBook(request, env, url, origin) {
 
   // Create Stripe Checkout session
   const siteUrl = env.SITE_URL ?? 'http://localhost:8080';
-  const session = await createStripeSession({ env, bookingId, date, name, email, guests, depositAmount, totalAmount, siteUrl });
+  const session = await createStripeSession({ env, bookingId, date, name, email, guests, depositAmount, siteUrl });
 
   if (!session?.id)
     return json({ error: 'Could not create payment session' }, 502, origin);
@@ -403,7 +402,7 @@ async function stripePost(env, endpoint, params) {
   return res.json();
 }
 
-async function createStripeSession({ env, bookingId, date, name, email, guests, depositAmount, totalAmount, siteUrl }) {
+async function createStripeSession({ env, bookingId, date, name, email, guests, depositAmount, siteUrl }) {
   const depositCents = Math.round(depositAmount * 100);
 
   return stripePost(env, 'checkout/sessions', {
@@ -412,7 +411,7 @@ async function createStripeSession({ env, bookingId, date, name, email, guests, 
     'line_items[0][price_data][currency]':                 'eur',
     'line_items[0][price_data][product_data][name]':       `DPV Snorkel Experience — ${date}`,
     'line_items[0][price_data][product_data][description]':
-      `${guests} guest${guests > 1 ? 's' : ''} · 50% deposit (balance €${(totalAmount * 0.5).toFixed(2)} due on the day)`,
+      `${guests} guest${guests > 1 ? 's' : ''} · Full payment`,
     'line_items[0][price_data][unit_amount]':              depositCents,
     'line_items[0][quantity]':                             '1',
     'metadata[booking_id]':                               bookingId,

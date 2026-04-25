@@ -7,7 +7,6 @@
   let error     = $state(false);
   let loading   = $state(true);
 
-  let balance   = $derived(booking ? (booking.total_amount - booking.deposit_amount).toFixed(2) : '0');
   let icsUrl    = $derived(booking ? `${API}/calendar/${booking.ical_token}.ics` : '');
   let gcUrl     = $derived.by(() => {
     if (!booking) return '';
@@ -15,7 +14,7 @@
     return `https://calendar.google.com/calendar/render?action=TEMPLATE`
       + `&text=${encodeURIComponent('DPV Snorkel Experience — Base One')}`
       + `&dates=${dateStr}T120000Z/${dateStr}T160000Z`
-      + `&details=${encodeURIComponent(`Guests: ${booking.guests}\nDeposit paid: €${booking.deposit_amount}\nBalance due: €${balance}\n\nMeeting point: Base1 Sardinia · Viale Colombo 15, Cala Gonone\nTime: 2:00 PM`)}`
+      + `&details=${encodeURIComponent(`Guests: ${booking.guests}\nTotal paid: €${booking.total_amount}\n\nMeeting point: Base1 Sardinia · Viale Colombo 15, Cala Gonone\nTime: 2:00 PM`)}`
       + `&location=${encodeURIComponent('Base1 Sardinia, Viale Colombo 15, Cala Gonone, Sardinia, Italy')}`;
   });
 
@@ -68,7 +67,7 @@
     {#if error}
       {t('Your payment may have been processed — please contact us.','Il pagamento potrebbe essere avvenuto — contattaci.')}
     {:else}
-      {t('Your deposit has been received. See you on the water!','Il tuo deposito è stato ricevuto. Ci vediamo in acqua!')}
+      {t('Your payment has been received. See you on the water!','Il tuo pagamento è stato ricevuto. Ci vediamo in acqua!')}
     {/if}
   </p>
 </div>
@@ -101,9 +100,7 @@
           { label: t('Time','Ora'),                        val: '14:00 (2 PM)',                                      cls: 'blue' },
           { label: t('Guests','Ospiti'),                   val: booking.guests,                                      cls: '' },
           { label: t('Meeting point','Punto di ritrovo'),  val: 'Base1 Sardinia · Viale Colombo 15, Cala Gonone',    cls: '' },
-          { label: t('Total price','Prezzo totale'),        val: `€${booking.total_amount.toFixed(2)}`,               cls: '' },
-          { label: t('Deposit paid today ✓','Deposito pagato oggi ✓'), val: `€${booking.deposit_amount.toFixed(2)}`, cls: 'green' },
-          { label: t('Balance due on the day','Saldo il giorno'), val: `€${balance}`,                                cls: '' },
+          { label: t('Total paid ✓','Totale pagato ✓'),      val: `€${booking.total_amount.toFixed(2)}`,               cls: 'green' },
         ] as row}
           <div class="detail-row">
             <span class="detail-label">{row.label}</span>
@@ -129,10 +126,10 @@
       </a>
     </div>
 
-    <!-- Balance reminder -->
-    <div class="note-box">
-      💳 {@html t(`Please bring <strong>€${balance}</strong> cash or card on the day. The balance is due before boarding.`,
-            `Porta <strong>€${balance}</strong> in contanti o carta il giorno dell'attività.`)}
+    <!-- Payment confirmed -->
+    <div class="note-box" style="background:var(--color-success-bg, #f0fdf4);border-color:var(--color-success-border, #bbf7d0);color:var(--color-success, #16a34a)">
+      ✅ {@html t(`Your payment of <strong>€${booking.total_amount.toFixed(2)}</strong> has been received. Nothing to pay on the day!`,
+            `Il pagamento di <strong>€${booking.total_amount.toFixed(2)}</strong> è stato ricevuto. Nulla da pagare il giorno dell'attività!`)}
     </div>
 
     <!-- Liability waiver -->
