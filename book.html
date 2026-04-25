@@ -780,7 +780,6 @@
           if (!dates.length) return;
           selectedDate = dates[0].toISOString().slice(0, 10);
           updateSpotsText();
-          document.getElementById('spots-row').style.display = 'flex';
           // Auto-advance to step 2 after a short pause
           setTimeout(goToStep2, 320);
           updateDateChip();
@@ -799,16 +798,27 @@
     }
 
     // ── Spots ─────────────────────────────────────────────────────────────────
+    // When spots are low (<=2 / overbooked), suppress the count entirely on the
+    // client to avoid revealing scarcity. Guest-counter cap is still enforced.
     function updateSpotsText() {
       if (!selectedDate) return;
       const spots = availableDates[selectedDate] ?? 0;
-      const badge = document.getElementById('spots-badge');
-      const txt   = document.getElementById('spots-text');
-      txt.textContent = lang === 'en'
-        ? `${spots} spot${spots === 1 ? '' : 's'} left`
-        : `${spots} posto${spots === 1 ? '' : 'i'} disponibile${spots === 1 ? '' : 'i'}`;
-      badge.className = 'spots-badge' + (spots <= 2 ? ' low' : '');
-      document.getElementById('chip-spots').textContent = txt.textContent;
+      const isLow = spots <= 2;
+
+      if (isLow) {
+        document.getElementById('spots-row').style.display = 'none';
+        document.getElementById('spots-text').textContent = '';
+        document.getElementById('spots-badge').className = 'spots-badge';
+        document.getElementById('chip-spots').textContent = '';
+        return;
+      }
+
+      const txt = lang === 'en'
+        ? `${spots} spots left`
+        : `${spots} posti disponibili`;
+      document.getElementById('spots-text').textContent = txt;
+      document.getElementById('spots-badge').className = 'spots-badge';
+      document.getElementById('chip-spots').textContent = txt;
     }
 
     // ── Date chip ─────────────────────────────────────────────────────────────
