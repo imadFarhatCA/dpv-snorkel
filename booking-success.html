@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Booking Confirmed — DPV Snorkel · Base One</title>
+  <meta name="description" content="Your DPV Snorkel Experience booking is confirmed. Add it to your calendar and prepare for the day." />
+  <meta name="robots" content="noindex" />
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -120,11 +122,11 @@
 
   <!-- NAV -->
   <nav class="nav">
-    <a href="/" class="nav-logo" title="DPV Snorkel Experience">
+    <a href="index.html" class="nav-logo" title="DPV Snorkel Experience">
       <img src="resourcesImages/logo_base1.png" alt="Base One Logo" />
     </a>
     <div class="nav-right">
-      <a href="/" class="nav-back">← Back to DPV</a>
+      <a href="index.html" class="nav-back">← Back to Experience</a>
     </div>
   </nav>
 
@@ -175,8 +177,9 @@
       const gcUrl   = `https://calendar.google.com/calendar/render?action=TEMPLATE`
         + `&text=${encodeURIComponent('DPV Snorkel Experience — Base One')}`
         + `&dates=${b.date.replace(/-/g,'')}/${nextDay(b.date)}`
-        + `&details=${encodeURIComponent(`Guests: ${b.guests}\nDeposit paid: €${b.deposit_amount}\nBalance due: €${balance}\n\nMeeting point: Porto di Cala Gonone`)}`
-        + `&location=${encodeURIComponent('Porto di Cala Gonone, Nuoro, Sardinia, Italy')}`;
+        // Alt copy kept for future: 'Porto di Cala Gonone' / 'Porto di Cala Gonone, Nuoro, Sardinia, Italy'
+        + `&details=${encodeURIComponent(`Guests: ${b.guests}\nDeposit paid: €${b.deposit_amount}\nBalance due: €${balance}\n\nMeeting point: Base1 Sardinia, Viale Colombo 15, Cala Gonone`)}`
+        + `&location=${encodeURIComponent('Base1 Sardinia, Viale Colombo 15, Cala Gonone, Nuoro, Sardinia, Italy')}`;
 
       document.getElementById('main-content').innerHTML = `
 
@@ -198,7 +201,7 @@
             </div>
             <div class="detail-row">
               <span class="detail-label">Meeting point</span>
-              <span class="detail-val">Porto di Cala Gonone · Arrive by 08:30</span>
+              <span class="detail-val">Viale Colombo 15, Cala Gonone · Arrive by 08:30</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Total price</span>
@@ -245,7 +248,7 @@
 
         <!-- Actions -->
         <div style="text-align:center;margin-top:32px">
-          <a href="/" class="btn btn-primary" style="margin-right:12px">← Back to DPV</a>
+          <a href="index.html" class="btn btn-primary" style="margin-right:12px">← Back to DPV</a>
           <a href="https://wa.me/message/BASEONE" target="_blank" class="btn btn-ghost">Questions? WhatsApp us</a>
         </div>
       `;

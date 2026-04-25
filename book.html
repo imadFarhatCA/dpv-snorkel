@@ -4,12 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book — DPV Snorkel Experience · Base One Sardinia</title>
+  <meta name="description" content="Book the Base One Sardinia DPV Snorkel Experience in Cala Gonone. Pick a date, choose guests, and pay your deposit securely online." />
+  <link rel="canonical" href="https://base1dpv-book.pages.dev/book" />
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="script.js" defer></script>
   <style>
     /* ══════════════════════════════════════════
        LOCAL DESIGN TOKENS
@@ -456,12 +459,12 @@
 
   <!-- NAV -->
   <nav class="nav">
-    <a href="/" class="nav-logo" title="DPV Snorkel Experience">
+    <a href="index.html" class="nav-logo" title="DPV Snorkel Experience">
       <img src="resourcesImages/logo_base1.png" alt="Base One Logo" />
     </a>
     <div class="nav-right">
-      <a href="/" class="nav-back">← Back</a>
-      <span class="btn btn-sm" id="lang-toggle" style="cursor:pointer" onclick="toggleLang()">🇮🇹 Italiano</span>
+      <a href="index.html" class="nav-back">← Back to Experience</a>
+      <span class="btn btn-sm" id="lang-toggle" style="cursor:pointer" onclick="toggleLang()" role="button" aria-label="Switch language">🇮🇹 Italiano</span>
     </div>
   </nav>
 
@@ -552,8 +555,12 @@
               </div>
             </div>
             <p style="font-size:.78rem;color:var(--color-muted);margin-top:14px">
+              <span class="en">📍 Meeting point: Base1 Sardinia · Viale Colombo 15, Cala Gonone · Arrive by 08:30</span>
+              <span class="it hidden">📍 Punto di ritrovo: Base1 Sardinia · Viale Colombo 15, Cala Gonone · Arrivo entro le 08:30</span>
+              <!-- Alternative meeting point copy (kept for possible future use):
               <span class="en">📍 Meeting point: Porto di Cala Gonone · Arrive by 08:30</span>
               <span class="it hidden">📍 Punto di ritrovo: Porto di Cala Gonone · Arrivo entro le 08:30</span>
+              -->
             </p>
           </div>
         </div>
@@ -703,8 +710,7 @@
 
     function toggleLang() {
       lang = lang === 'en' ? 'it' : 'en';
-      document.querySelectorAll('.en').forEach(el => el.classList.toggle('hidden', lang !== 'en'));
-      document.querySelectorAll('.it').forEach(el => el.classList.toggle('hidden', lang !== 'it'));
+      setLang(lang);
       document.getElementById('lang-toggle').textContent = lang === 'en' ? '🇮🇹 Italiano' : '🇬🇧 English';
       if (selectedDate) updateDateChip();
       updateSpotsText();
@@ -820,7 +826,8 @@
       } else {
         document.getElementById('chip-date').textContent = `${DAYS_IT[dow]}, ${dy} ${MONTHS_EN[mon]}`;
       }
-      document.getElementById('chip-day').textContent = yr + ' · Porto di Cala Gonone · 08:30';
+      // Alt copy kept for future: yr + ' · Porto di Cala Gonone · 08:30'
+      document.getElementById('chip-day').textContent = yr + ' · Viale Colombo 15, Cala Gonone · 08:30';
     }
 
     // ── Guest counter ─────────────────────────────────────────────────────────

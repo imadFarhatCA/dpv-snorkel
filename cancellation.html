@@ -30,9 +30,9 @@
   </div>
 
   <main class="policy-content">
-    <div class="lang-toggle lang-toggle-content">
-      <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
-      <button class="lang-btn" data-lang="it" onclick="setLang('it')">Italiano</button>
+    <div class="lang-toggle lang-toggle-content" role="group" aria-label="Language">
+      <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English">English</button>
+      <button class="lang-btn" data-lang="it" onclick="setLang('it')" aria-label="Passa all'italiano">Italiano</button>
     </div>
 
     <!-- ========== ENGLISH ========== -->
@@ -177,7 +177,7 @@
         <img src="resourcesImages/logo_base1.png" alt="Base One Sardinia" />
       </a>
       <p class="footer-text">Operated from <a href="https://www.baseone.it">Base One Sardinia</a> in Cala Gonone in partnership with SUEX.</p>
-      <p class="footer-copy">© 2026 Base One Sardinia · <a href="https://www.baseone.it">www.baseone.it</a></p>
+      <p class="footer-copy">© <span data-current-year>2026</span> Base One Sardinia · <a href="https://www.baseone.it">www.baseone.it</a></p>
     </div>
   </footer>
 
