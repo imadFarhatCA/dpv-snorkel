@@ -375,7 +375,7 @@
           {t('Next available date:', 'Prossima data disponibile:')}
           <strong> {fmtDate(suggestedDate)}</strong>
         </p>
-        <button class="modal-btn-suggest" onclick={() => { overbookedModal = false; fpInstance?.setDate(suggestedDate); }}>
+        <button class="modal-btn-suggest" onclick={() => { overbookedModal = false; fpInstance?.setDate(suggestedDate); setTimeout(() => fpInstance && markAvailable(fpInstance), 50); }}>
           {t('Pick this date →', 'Scegli questa data →')}
         </button>
         <p class="modal-or">{t('or', 'oppure')}</p>
