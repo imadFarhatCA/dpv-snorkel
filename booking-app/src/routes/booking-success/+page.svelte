@@ -84,7 +84,7 @@
       <p style="color:var(--color-muted);margin-bottom:24px">
         {t('If your payment was charged, your booking is confirmed — we\'ll be in touch shortly.','Se il pagamento è stato addebitato, la prenotazione è confermata — ti contatteremo a breve.')}
       </p>
-      <a href="https://wa.me/message/BASEONE" target="_blank" rel="noopener" class="btn-primary">
+      <a href="https://wa.me/393403430380" target="_blank" rel="noopener" class="btn-primary">
         {t('Contact Base One','Contatta Base One')}
       </a>
     </div>
@@ -169,7 +169,7 @@
     <!-- Actions -->
     <div class="actions">
       <a href="https://base1dpv.pages.dev" class="btn-primary">← {t('Back to DPV','Torna al DPV')}</a>
-      <a href="https://wa.me/message/BASEONE" target="_blank" rel="noopener" class="btn-ghost">
+      <a href="https://wa.me/393403430380" target="_blank" rel="noopener" class="btn-ghost">
         {t('Questions? WhatsApp us','Domande? Scrivici su WhatsApp')}
       </a>
     </div>

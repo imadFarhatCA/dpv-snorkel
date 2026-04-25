@@ -38,7 +38,7 @@ function emailShell(heading, subtitle, body, lang) {
   <div style="padding:20px 24px;text-align:center;font-size:12px;color:#6b7280;border-radius:0 0 12px 12px">
     <p style="margin:0">${MEETING}</p>
     <p style="margin:4px 0 0">
-      <a href="https://wa.me/message/BASEONE" style="color:${BRAND.color}">WhatsApp</a> ·
+      <a href="https://wa.me/393403430380" style="color:${BRAND.color}">WhatsApp</a> ·
       <a href="${SITE_URL_MAIN}" style="color:${BRAND.color}">Website</a>
     </p>
   </div>
