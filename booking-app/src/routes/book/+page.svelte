@@ -193,11 +193,14 @@
         <div class="card-body" style="padding-bottom:0">
           <div id="fp-calendar"></div>
         </div>
-        {#if selectedDate && step === 1}
+        <!-- Only show the spots indicator when there's healthy availability.
+             When spotsLeft <= 2 (low / overbooked), suppress entirely so the
+             client never sees scarcity. Guest counter still caps via spotsLeft. -->
+        {#if selectedDate && step === 1 && spotsLeft > 2}
           <div class="spots-row">
-            <div class="spots-badge" class:low={spotsLeft <= 2}>
+            <div class="spots-badge">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              {spotsLeft} {t(`spot${spotsLeft === 1 ? '' : 's'} left`, `posto${spotsLeft === 1 ? '' : 'i'} disponibile${spotsLeft === 1 ? '' : 'i'}`)}
+              {spotsLeft} {t('spots left', 'posti disponibili')}
             </div>
           </div>
         {/if}
@@ -375,7 +378,6 @@
   /* ── Spots badge ── */
   .spots-row   { display:flex; align-items:center; justify-content:center; padding:12px 24px 18px; border-top:1px solid var(--color-border); }
   .spots-badge { display:inline-flex; align-items:center; gap:6px; background:var(--color-ocean-08); color:var(--color-ocean); font-size:.82rem; font-weight:600; padding:6px 14px; border-radius:20px; }
-  .spots-badge.low { background:var(--color-red-08); color:var(--color-red); }
 
   /* ── Included ── */
   .included-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
