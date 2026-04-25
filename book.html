@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="lib/config.js"></script>
+  <script src="lib/validate.js"></script>
   <script src="script.js" defer></script>
   <style>
     /* ══════════════════════════════════════════
@@ -692,11 +694,7 @@
   </div><!-- /book-page -->
 
   <script>
-    const API = (() => {
-      const h = location.hostname;
-      if (h === 'localhost' || h === '127.0.0.1') return "http://localhost:8789";
-      return 'https://dpv-booking.baseone.workers.dev';
-    })();
+    const API = window.DPV_CONFIG.API;
 
     const DAYS_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const DAYS_IT = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
@@ -869,8 +867,8 @@
       const phone = document.getElementById('phone').value.trim();
       const notes = '';
 
-      if (!name)  return showAlert(lang === 'en' ? 'Please enter your name.'  : 'Inserisci il tuo nome.',  'error');
-      if (!email) return showAlert(lang === 'en' ? 'Please enter your email.' : 'Inserisci la tua email.', 'error');
+      const v = window.DPVValidate.bookingForm({ name, email, phone, lang });
+      if (!v.ok) return showAlert(v.msg, 'error');
 
       const btn = document.getElementById('pay-btn');
       btn.disabled = true;

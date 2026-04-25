@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="dns-prefetch" href="//www.youtube.com" />
+  <script src="lib/config.js"></script>
+  <script src="lib/footer.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -358,16 +360,8 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <a href="https://www.baseone.it" class="footer-logo">
-        <img src="resourcesImages/logo_base1.png" alt="Base One Sardinia" />
-      </a>
-      <p class="footer-text">Operated from <a href="https://www.baseone.it">Base One Sardinia</a> in Cala Gonone in partnership with Suex S.r.l. Coastal routes selected for safety and conditions across Sardinia.</p>
-      <p class="footer-copy">© <span data-current-year>2026</span> Base One Sardinia · <a href="https://www.baseone.it">www.baseone.it</a></p>
-    </div>
-  </footer>
+  <!-- FOOTER (rendered by lib/footer.js) -->
+  <div data-footer-mount></div>
 
 </body>
 </html>
