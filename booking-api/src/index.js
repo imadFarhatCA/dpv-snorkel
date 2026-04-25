@@ -124,11 +124,10 @@ async function handleDates(env, origin) {
 
   const bookedMap = Object.fromEntries(booked.map(r => [r.date, r.booked]));
 
-  // Always show dates as available — overbookings are handled in backoffice
   const dates = openDates
     .map(d => {
       const spotsLeft = dateMap[d] - (bookedMap[d] ?? 0);
-      return { date: d, spots_left: Math.max(spotsLeft, 1) };
+      return { date: d, spots_left: Math.max(spotsLeft, 0) };
     });
 
   return json({ dates }, 200, origin);
