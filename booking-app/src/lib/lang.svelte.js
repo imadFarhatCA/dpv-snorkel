@@ -1,8 +1,8 @@
 /** Reactive language store — 'en' | 'it' */
 export const lang = $state({ value: 'en' });
 
-export function toggleLang() {
-  lang.value = lang.value === 'en' ? 'it' : 'en';
+export function setLang(value) {
+  lang.value = value === 'it' ? 'it' : 'en';
 }
 
 /** Helper: pick string based on current lang */

@@ -1005,7 +1005,7 @@ h3 {
 }
 
 .lang-toggle {
-  display: flex;
+  display: inline-flex;
   gap: 6px;
 }
 .lang-toggle-content {
@@ -1034,6 +1034,13 @@ h3 {
 .lang-btn:hover:not(.active) {
   border-color: var(--color-charcoal);
   color: var(--color-dark);
+}
+
+/* Compact variant for nav bars */
+.lang-toggle-nav .lang-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  letter-spacing: 0.2px;
 }
 
 /* Cancellation policy */

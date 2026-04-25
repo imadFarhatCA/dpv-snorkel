@@ -107,14 +107,24 @@ a    { color: inherit; text-decoration: none; }
   transition: color .2s;
 }
 .nav-back:hover { color: var(--color-ocean); }
-.btn-lang {
-  font-family: var(--font); font-size: .8rem; font-weight: 600;
-  padding: .45rem 1rem;
+.lang-toggle { display: inline-flex; gap: 6px; }
+.lang-btn {
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 10px 28px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-pill);
   background: transparent; color: var(--color-muted);
   cursor: pointer; transition: all .15s;
 }
-.btn-lang:hover { border-color: var(--color-ocean); color: var(--color-ocean); }
+.lang-btn.active {
+  background: var(--color-dark); color: #fff; border-color: var(--color-dark);
+}
+.lang-btn:hover:not(.active) {
+  border-color: var(--color-charcoal); color: var(--color-dark);
+}
+.lang-toggle-nav .lang-btn {
+  padding: 6px 14px; font-size: 12px; letter-spacing: 0.2px;
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }

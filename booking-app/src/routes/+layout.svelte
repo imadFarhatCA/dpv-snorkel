@@ -1,6 +1,6 @@
 <script>
   import '../app.css';
-  import { lang, toggleLang } from '$lib/lang.svelte.js';
+  import { lang, setLang } from '$lib/lang.svelte.js';
 
   let { children } = $props();
 </script>
@@ -11,9 +11,10 @@
   </a>
   <div class="nav-right">
     <a href="https://base1dpv.pages.dev" class="nav-back">← Back to DPV</a>
-    <button class="btn-lang" onclick={toggleLang}>
-      {lang.value === 'en' ? '🇮🇹 Italiano' : '🇬🇧 English'}
-    </button>
+    <div class="lang-toggle lang-toggle-nav" role="group" aria-label="Language">
+      <button type="button" class="lang-btn" class:active={lang.value === 'en'} onclick={() => setLang('en')} aria-label="Switch to English">English</button>
+      <button type="button" class="lang-btn" class:active={lang.value === 'it'} onclick={() => setLang('it')} aria-label="Passa all'italiano">Italiano</button>
+    </div>
   </div>
 </nav>
 
