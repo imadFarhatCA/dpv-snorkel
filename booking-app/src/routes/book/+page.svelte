@@ -57,10 +57,7 @@
       .forEach(el => el.classList.remove('available'));
     inst.calendarContainer
       .querySelectorAll('.flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay)')
-      .forEach(el => {
-        const key = el.dateObj ? toKey(el.dateObj) : null;
-        if (!key || (_dates[key] ?? 0) > 0) el.classList.add('available');
-      });
+      .forEach(el => el.classList.add('available'));
   }
 
   function closestAvailable(fromDate) {
