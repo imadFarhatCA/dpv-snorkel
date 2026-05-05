@@ -3,9 +3,20 @@
   import { t } from '$lib/lang.svelte.js';
   import { API } from '$lib/api.js';
 
-  let booking   = $state(null);
-  let error     = $state(false);
-  let loading   = $state(true);
+  let booking         = $state(null);
+  let error           = $state(false);
+  let loading         = $state(true);
+  let showWaiverModal = $state(false);
+
+  const waiverUrl = $derived(booking ? `https://www.sardiniasnorkeldpv.com/waiver.html?token=${booking.ical_token}` : '');
+
+  function openWaiver() {
+    window.open(waiverUrl, '_blank', 'noopener');
+    showWaiverModal = false;
+  }
+  function dismissWaiver() {
+    showWaiverModal = false;
+  }
 
   let icsUrl    = $derived(booking ? `${API}/calendar/${booking.ical_token}.ics` : '');
   let gcUrl     = $derived.by(() => {
@@ -30,6 +41,9 @@
       console.log('[DPV] Confirm response:', res.status, data);
       if (!res.ok || !data.booking) { error = true; loading = false; return; }
       booking = data.booking;
+      if (!booking.waiver_pdf_key) {
+        setTimeout(() => { showWaiverModal = true; }, 600);
+      }
     } catch (err) {
       console.error('[DPV] Confirm error:', err);
       error = true;
@@ -42,6 +56,31 @@
 <svelte:head>
   <title>{t('Booking Confirmed', 'Prenotazione Confermata')} — DPV Snorkel · Base One</title>
 </svelte:head>
+
+{#if showWaiverModal && booking}
+  <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="waiver-modal-title">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <p class="modal-eyebrow">{t('One More Important Step', 'Un Ultimo Passaggio Importante')}</p>
+      <h2 id="waiver-modal-title">{t('Please fill out the Liability Form before your trip', 'Compila la Liberatoria prima della tua uscita')}</h2>
+      <p class="modal-sub">{t('All participants must sign the liability waiver before the activity. It only takes 2 minutes — and you\'ll skip the queue on the day.', 'Tutti i partecipanti devono firmare la liberatoria prima dell\'attività. Richiede solo 2 minuti — e salterai la coda il giorno dell\'uscita.')}</p>
+      <button type="button" class="modal-cta" onclick={openWaiver}>
+        {t('Fill Out Liability Form', 'Compila la Liberatoria')}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button type="button" class="modal-later" onclick={dismissWaiver}>
+        {t('I\'ll do it later', 'Lo faccio dopo')}
+      </button>
+    </div>
+  </div>
+{/if}
 
 <!-- Hero -->
 <div class="success-hero">
@@ -141,7 +180,7 @@
         <p class="waiver-cta-title">{t('Liability Waiver Required','Liberatoria Obbligatoria')}</p>
         <p class="waiver-cta-sub">{t('All participants must complete the waiver before the activity. Please fill it out now — it only takes 2 minutes.','Tutti i partecipanti devono compilare la liberatoria prima dell\'attività. Compilala ora — richiede solo 2 minuti.')}</p>
       </div>
-      <a href="https://www.sardiniasnorkeldpv.com/waiver.html?token={booking.ical_token}" target="_blank" rel="noopener" class="waiver-cta-btn">
+      <a href={waiverUrl} target="_blank" rel="noopener" class="waiver-cta-btn">
         {t('Fill Waiver','Compila')}
       </a>
     </div>
@@ -178,6 +217,99 @@
 </div>
 
 <style>
+  /* Waiver modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 20, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fade-in .3s ease;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 28px 28px;
+    max-width: 460px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px -12px rgba(0,0,0,.5);
+    animation: pop-in .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(6, 147, 227, .12);
+    color: #0693e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .modal-eyebrow {
+    color: #0693e3;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .modal h2 {
+    font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 12px;
+    color: #101820;
+  }
+  .modal-sub {
+    color: #6b7280;
+    font-size: .95rem;
+    line-height: 1.55;
+    margin: 0 0 24px;
+  }
+  .modal-cta {
+    width: 100%;
+    background: #0693e3;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .modal-cta:hover {
+    background: #0578bd;
+    transform: translateY(-1px);
+  }
+  .modal-later {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: .85rem;
+    margin-top: 12px;
+    padding: 8px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .modal-later:hover { color: #6b7280; }
+
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(20px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
   .success-hero {
     background: var(--color-dark-alt);
     padding: calc(var(--nav-h) + 56px) 24px 56px;

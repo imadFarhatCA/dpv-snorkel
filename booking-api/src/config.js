@@ -7,7 +7,8 @@ export const ICAL_LOCATION      = 'Porto di Cala Gonone, Nuoro, Sardinia, Italy'
 export const MAPS_URL           = 'https://www.google.com/maps/search/Base1+Sardinia+Viale+Colombo+15+Cala+Gonone';
 export const SITE_URL_MAIN      = 'https://www.sardiniasnorkeldpv.com';
 export const ORGANIZER_EMAIL    = 'info@baseone.it';
-export const BOOKING_EMAIL      = 'booking@baseone.it';
+export const BOOKING_EMAIL      = 'booking@sardiniasnorkeldpv.com';
+export const REPLY_TO_EMAIL     = 'info@baseone.it';
 export const ORGANIZER_NAME     = 'Base One';
 export const ARRIVAL_TIME       = '08:30';
 

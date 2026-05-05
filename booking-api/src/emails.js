@@ -3,8 +3,8 @@
  * Shared email layout, confirmation, and reschedule templates.
  */
 
-import { BRAND, MEETING_POINT as MEETING, MAPS_URL, SITE_URL_MAIN, BOOKING_EMAIL } from './config.js';
-const FROM = { email: BOOKING_EMAIL, name: 'Base One Sardinia' };
+import { BRAND, MEETING_POINT as MEETING, MAPS_URL, SITE_URL_MAIN, BOOKING_EMAIL, REPLY_TO_EMAIL } from './config.js';
+const FROM = `Base One Sardinia <${BOOKING_EMAIL}>`;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -127,17 +127,26 @@ export function rescheduleEmail(booking, oldDate, apiUrl) {
   };
 }
 
-// ── Send via Mailchannels ────────────────────────────────────────────────────
+// ── Send via Resend ──────────────────────────────────────────────────────────
 
-export async function sendEmail(to, name, subject, html) {
-  return fetch('https://api.mailchannels.net/tx/v1/send', {
+export async function sendEmail(env, to, name, subject, html) {
+  const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
-      personalizations: [{ to: [{ email: to, name }] }],
       from: FROM,
+      to: [name ? `${name} <${to}>` : to],
+      reply_to: REPLY_TO_EMAIL,
       subject,
-      content: [{ type: 'text/html', value: html }],
+      html,
     }),
   });
+  if (!res.ok) {
+    const data = await res.text();
+    console.error('Resend error', res.status, data);
+  }
+  return res;
 }

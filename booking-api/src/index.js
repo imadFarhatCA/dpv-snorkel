@@ -228,7 +228,7 @@ async function handleConfirm(request, env, origin) {
   // Send confirmation email (only if we just confirmed — not on repeat visits)
   if (booking && updateMeta.changes > 0) {
     const siteUrl = env.SITE_URL ?? 'https://www.sardiniasnorkeldpv.com/booking';
-    await sendConfirmationEmail(booking, siteUrl).catch(err => console.error('Email error:', err));
+    await sendConfirmationEmail(env, booking, siteUrl).catch(err => console.error('Email error:', err));
   }
 
   return json({ booking }, 200, origin);
@@ -306,9 +306,9 @@ async function handleBookingIcs(token, env) {
 
 // ── Email (uses emails.js) ───────────────────────────────────────────────────
 
-async function sendConfirmationEmail(booking, siteUrl) {
+async function sendConfirmationEmail(env, booking, siteUrl) {
   const { subject, html } = confirmationEmail(booking, siteUrl);
-  await sendEmail(booking.email, booking.name, subject, html);
+  await sendEmail(env, booking.email, booking.name, subject, html);
 }
 
 // ── POST /api/waiver ─────────────────────────────────────────────────────────
