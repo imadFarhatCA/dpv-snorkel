@@ -4,6 +4,10 @@ const BASE1_LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA5MAAALXCAYAAA
 function toggleMinor(checked) {
   document.getElementById('guardianFields').hidden = !checked;
   document.getElementById('guardianSigSection').hidden = !checked;
+  // Re-size the guardian canvas now that it's visible (it had 0×0 dimensions while hidden)
+  if (checked && typeof guardianSigPad !== 'undefined' && guardianSigPad?.resize) {
+    requestAnimationFrame(() => guardianSigPad.resize());
+  }
 }
 
 // ===== Signature canvases =====
@@ -116,9 +120,15 @@ document.getElementById('waiverForm').addEventListener('submit', function(e) {
 
   const errEN = [], errIT = [];
 
-  if (!name || !dob || !nationality || !emergency) {
-    errEN.push('Please fill in all participant information fields.');
-    errIT.push('Compila tutti i campi delle informazioni del partecipante.');
+  const missing = [];
+  const missingIT = [];
+  if (!name)        { missing.push('Full name');         missingIT.push('Nome completo'); }
+  if (!dob)         { missing.push('Date of birth');     missingIT.push('Data di nascita'); }
+  if (!nationality) { missing.push('Nationality');       missingIT.push('Nazionalità'); }
+  if (!emergency)   { missing.push('Emergency contact'); missingIT.push('Contatto di emergenza'); }
+  if (missing.length) {
+    errEN.push(`Please fill in: ${missing.join(', ')}.`);
+    errIT.push(`Compila: ${missingIT.join(', ')}.`);
   }
   if (!document.getElementById('medConfirm').checked) {
     errEN.push('Please confirm the medical eligibility declaration.');
