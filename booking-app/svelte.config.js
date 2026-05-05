@@ -5,6 +5,7 @@ const config = {
   kit: {
     adapter: adapter(),
     alias: { $lib: 'src/lib' },
+    paths: { base: '/booking' },
   },
 };
 

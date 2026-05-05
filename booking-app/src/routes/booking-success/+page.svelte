@@ -141,7 +141,7 @@
         <p class="waiver-cta-title">{t('Liability Waiver Required','Liberatoria Obbligatoria')}</p>
         <p class="waiver-cta-sub">{t('All participants must complete the waiver before the activity. Please fill it out now — it only takes 2 minutes.','Tutti i partecipanti devono compilare la liberatoria prima dell\'attività. Compilala ora — richiede solo 2 minuti.')}</p>
       </div>
-      <a href="https://base1dpv.pages.dev/waiver.html?token={booking.ical_token}" target="_blank" rel="noopener" class="waiver-cta-btn">
+      <a href="https://www.sardiniasnorkeldpv.com/waiver.html?token={booking.ical_token}" target="_blank" rel="noopener" class="waiver-cta-btn">
         {t('Fill Waiver','Compila')}
       </a>
     </div>
@@ -168,7 +168,7 @@
 
     <!-- Actions -->
     <div class="actions">
-      <a href="https://base1dpv.pages.dev" class="btn-primary">← {t('Back to DPV','Torna al DPV')}</a>
+      <a href="https://www.sardiniasnorkeldpv.com" class="btn-primary">← {t('Back to DPV','Torna al DPV')}</a>
       <a href="https://wa.me/393403430380" target="_blank" rel="noopener" class="btn-ghost">
         {t('Questions? WhatsApp us','Domande? Scrivici su WhatsApp')}
       </a>

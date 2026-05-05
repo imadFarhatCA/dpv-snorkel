@@ -5,7 +5,7 @@ compatibility_date = "2024-09-23"
 [vars]
 PRICE_PER_PERSON = "90"
 MAX_GUESTS       = "8"
-SITE_URL         = "https://base1dpv-book.pages.dev"
+SITE_URL         = "https://www.sardiniasnorkeldpv.com/booking"
 
 [[d1_databases]]
 binding       = "DB"

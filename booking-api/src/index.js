@@ -17,6 +17,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://127.0.0.1:5180',
   'http://127.0.0.1:8080',
+  'https://sardiniasnorkeldpv.com',
+  'https://www.sardiniasnorkeldpv.com',
   'https://base1dpv.pages.dev',
   'https://base1dpv-book.pages.dev',
   'https://dpv.baseone.it',
@@ -225,7 +227,7 @@ async function handleConfirm(request, env, origin) {
 
   // Send confirmation email (only if we just confirmed — not on repeat visits)
   if (booking && updateMeta.changes > 0) {
-    const siteUrl = env.SITE_URL ?? 'https://base1dpv-book.pages.dev';
+    const siteUrl = env.SITE_URL ?? 'https://www.sardiniasnorkeldpv.com/booking';
     await sendConfirmationEmail(booking, siteUrl).catch(err => console.error('Email error:', err));
   }
 
@@ -404,7 +406,9 @@ async function stripePost(env, endpoint, params) {
     body: new URLSearchParams(params).toString(),
     signal: stripeSignal(),
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) console.error('Stripe error', res.status, JSON.stringify(data));
+  return data;
 }
 
 async function createStripeSession({ env, bookingId, date, name, email, guests, depositAmount, siteUrl }) {
