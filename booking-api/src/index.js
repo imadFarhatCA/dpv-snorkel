@@ -350,7 +350,34 @@ async function handleWaiver(request, env, origin) {
     "UPDATE bookings SET waiver_data = ?, waiver_pdf_key = 'waiver_signed' WHERE ical_token = ?"
   ).bind(waiverData, token).run();
 
+  // Notify admin that a waiver was submitted (don't block the response on this)
+  notifyAdminOfWaiver(env, booking, name.trim()).catch((err) =>
+    console.error('Admin waiver notification failed:', err)
+  );
+
   return json({ success: true, booking_id: booking.id }, 200, origin);
+}
+
+async function notifyAdminOfWaiver(env, booking, signerName) {
+  const adminEmail = 'info@baseone.it';
+  const subject = `Waiver signed — ${signerName} (booking #${booking.id})`;
+  const html = `
+    <div style="font-family:'Inter',Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1a1a1a">
+      <div style="background:#101820;padding:20px 24px;border-radius:10px 10px 0 0">
+        <h2 style="color:#fff;margin:0;font-size:18px">✓ Liability waiver signed</h2>
+      </div>
+      <div style="background:#f9fafb;padding:22px 24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 10px 10px">
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <tr><td style="padding:6px 0;color:#6b7280">Signer</td><td style="padding:6px 0;text-align:right;font-weight:600">${signerName}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280">Booking</td><td style="padding:6px 0;text-align:right;font-weight:600">#${booking.id}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280">Trip date</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#0693e3">${booking.date}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280">Customer email</td><td style="padding:6px 0;text-align:right;font-weight:600">${booking.email}</td></tr>
+          <tr><td style="padding:6px 0;color:#6b7280">Guests</td><td style="padding:6px 0;text-align:right;font-weight:600">${booking.guests}</td></tr>
+        </table>
+        <p style="font-size:12px;color:#6b7280;margin-top:14px;line-height:1.5">View the full signed waiver in the control panel.</p>
+      </div>
+    </div>`;
+  await sendEmail(env, adminEmail, 'Base One', subject, html);
 }
 
 // ── Date helper ──────────────────────────────────────────────────────────────

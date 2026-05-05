@@ -152,20 +152,42 @@ document.getElementById('waiverForm').addEventListener('submit', function(e) {
 
   _waiverSubmitting = true;
   const submitBtn = document.querySelector('.btn-generate');
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = submitBtn.textContent.replace(/generate/i, 'Generating…'); }
+  const setBtnText = (en, it) => {
+    if (!submitBtn) return;
+    const enEl = submitBtn.querySelector('.en');
+    const itEl = submitBtn.querySelector('.it');
+    if (enEl) enEl.textContent = en;
+    if (itEl) itEl.textContent = it;
+  };
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    setBtnText('Submitting…', 'Invio in corso…');
+  }
 
   const signatureImg = captureCanvas(sigPad.canvas);
   const guardianSignatureImg = isMinor ? captureCanvas(guardianSigPad.canvas) : null;
 
-  // POST waiver data to booking API if we have a booking token
+  // Stash the captured data so the success screen can offer a PDF download
+  const waiverData = {
+    lang: window.currentLang,
+    name, dob, nationality, emergency,
+    isMinor, guardianName, guardianRelation,
+    signatureImg,
+    guardianSignatureImg,
+    date: new Date().toLocaleDateString(window.currentLang === 'it' ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
+    timestamp: new Date().toLocaleString(window.currentLang === 'it' ? 'it-IT' : 'en-GB'),
+  };
+  window.__lastWaiverData = waiverData;
+
   const urlParams = new URLSearchParams(window.location.search);
   const bookingToken = urlParams.get('token');
-  if (bookingToken) {
-    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:8789'
-      : 'https://dpv-booking.imad-farhat-c3c.workers.dev';
+  const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8789'
+    : 'https://dpv-booking.imad-farhat-c3c.workers.dev';
 
-    fetch(`${API}/api/waiver`, {
+  const submitToBackend = async () => {
+    if (!bookingToken) return { skipped: true };
+    const res = await fetch(`${API}/api/waiver`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -175,28 +197,80 @@ document.getElementById('waiverForm').addEventListener('submit', function(e) {
         signature: signatureImg,
         guardianSignature: guardianSignatureImg
       })
-    }).catch(err => console.error('Waiver API error:', err));
-  }
-
-  try {
-    buildPDF({
-      lang: window.currentLang,
-      name, dob, nationality, emergency,
-      isMinor, guardianName, guardianRelation,
-      signatureImg,
-      guardianSignatureImg,
-      date: new Date().toLocaleDateString(window.currentLang === 'it' ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
-      timestamp: new Date().toLocaleString(window.currentLang === 'it' ? 'it-IT' : 'en-GB')
     });
-  } catch (err) {
-    errorEl.textContent = window.currentLang === 'it'
-      ? 'Errore nella generazione del PDF. Riprova.'
-      : 'Could not generate the PDF. Please try again.';
-    errorEl.style.display = 'block';
-    _waiverSubmitting = false;
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.textContent.replace(/generating…/i, 'Generate'); }
-  }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || `Server error (${res.status})`);
+    }
+    return res.json();
+  };
+
+  submitToBackend()
+    .then((result) => {
+      const wasSubmitted = !result?.skipped;
+      // No booking token? Auto-download since we couldn't save it server-side.
+      if (!wasSubmitted) {
+        try { buildPDF(waiverData); } catch (e) { console.error(e); }
+      }
+      showWaiverSuccess(wasSubmitted);
+    })
+    .catch((err) => {
+      console.error('Waiver submission failed:', err);
+      errorEl.textContent = window.currentLang === 'it'
+        ? `Invio fallito: ${err.message}. Riprova o contattaci.`
+        : `Submission failed: ${err.message}. Please try again or contact us.`;
+      errorEl.style.display = 'block';
+      errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      _waiverSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        setBtnText('Submit Waiver', 'Invia Liberatoria');
+      }
+    });
 });
+
+function showWaiverSuccess(wasSubmitted) {
+  const form = document.getElementById('waiverForm');
+  if (!form) return;
+  const isIt = window.currentLang === 'it';
+  const heading = isIt ? 'Liberatoria Inviata' : 'Waiver Submitted';
+  const message = wasSubmitted
+    ? (isIt
+        ? 'Grazie! La tua liberatoria firmata è stata salvata in modo sicuro. Ci vediamo in acqua.'
+        : 'Thank you! Your signed waiver has been securely saved. See you in the water.')
+    : (isIt
+        ? 'Il PDF firmato è stato generato. Per favore portane una copia il giorno dell\'attività.'
+        : 'Your signed PDF has been generated. Please bring a copy on the day of the activity.');
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'waiver-success';
+  wrapper.style.cssText = 'background:#fff;border:1px solid #d1fae5;border-radius:14px;padding:48px 32px;text-align:center;max-width:560px;margin:40px auto;';
+  wrapper.innerHTML = `
+    <div style="width:80px;height:80px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-size:24px;font-weight:700;color:#101820;margin:0 0 12px;">${heading}</h2>
+    <p style="font-size:15px;color:#4b5563;line-height:1.6;margin:0 0 28px;max-width:420px;margin-left:auto;margin-right:auto;">${message}</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button type="button" id="downloadCopyBtn" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:#fff;border:1.5px solid #0693e3;color:#0693e3;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        ${isIt ? 'Scarica Copia PDF' : 'Download PDF Copy'}
+      </button>
+      <a href="https://www.sardiniasnorkeldpv.com" style="display:inline-block;padding:12px 24px;background:#0693e3;color:#fff;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;">${isIt ? 'Torna al sito' : 'Back to site'}</a>
+    </div>`;
+  form.replaceWith(wrapper);
+
+  document.getElementById('downloadCopyBtn')?.addEventListener('click', () => {
+    try {
+      if (window.__lastWaiverData) buildPDF(window.__lastWaiverData);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert(isIt ? 'Errore durante la generazione del PDF.' : 'Could not generate the PDF.');
+    }
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 // ===== PDF Generation =====
 function buildPDF(d) {
