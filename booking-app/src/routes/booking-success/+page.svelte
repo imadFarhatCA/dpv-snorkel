@@ -41,6 +41,23 @@
       console.log('[DPV] Confirm response:', res.status, data);
       if (!res.ok || !data.booking) { error = true; loading = false; return; }
       booking = data.booking;
+
+      // Fire GTM purchase event once per session_id (deduplication via sessionStorage)
+      const dedupKey = `gtm_purchase_${sessionId}`;
+      if (!sessionStorage.getItem(dedupKey)) {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event:            'purchase',
+          transaction_id:   sessionId,
+          value:            booking.total_amount,
+          currency:         'EUR',
+        });
+        sessionStorage.setItem(dedupKey, '1');
+        console.log('[DPV] GTM purchase event fired:', booking.total_amount);
+      } else {
+        console.log('[DPV] GTM purchase event skipped (already fired for this session)');
+      }
+
       if (!booking.waiver_pdf_key) {
         setTimeout(() => { showWaiverModal = true; }, 600);
       }
